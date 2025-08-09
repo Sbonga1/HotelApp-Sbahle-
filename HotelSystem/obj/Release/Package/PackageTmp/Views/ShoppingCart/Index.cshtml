@@ -1,0 +1,227 @@
+﻿@using HotelSystem.Models
+@model HotelSystem.ViewModels.ShoppingCartViewModel
+
+@{
+    ViewBag.Title = "Checkout";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var db = new ApplicationDbContext();
+    var discount = Model.Discount;
+    double discountPercentage = discount != null ? discount.Percentage / 100.0 : 0;
+    double discountAmount = (double)Model.CartTotal * discountPercentage;
+    double finalTotal = (double)Model.CartTotal - discountAmount;
+    string promoCodeMessage = "";
+    double promoDiscountAmount = 0;
+
+    if (!string.IsNullOrEmpty(Model.PromoCode))
+    {
+        var promo = db.PromoCodes.FirstOrDefault(p => p.Code == Model.PromoCode && !p.IsRedeemed && p.ExpiryDate >= DateTime.Now);
+        if (promo != null)
+        {
+            promoDiscountAmount = promo.Amount;
+            finalTotal -= promoDiscountAmount;
+            promoCodeMessage = $"Promo code applied: - R{promoDiscountAmount:F2}";
+        }
+        else
+        {
+            promoCodeMessage = "Invalid promo code, or it has been used or expired.";
+        }
+    }
+
+    finalTotal = finalTotal < 0 ? 0 : finalTotal;
+}
+<div style="padding-top:5%"></div>
+<section class="checkout-section py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold">🛒 Checkout</h2>
+            <p class="text-muted">Review your order before placing it</p>
+        </div>
+
+        @if (!Model.CartItems.Any())
+        {
+            <div class="alert alert-warning text-center">
+                Your cart is empty. <a href="@Url.Action("Index", "StoreFront")" class="alert-link">Browse Menu</a>
+            </div>
+        }
+        else
+        {
+            <div class="row g-4">
+                <div class="col-lg-8">
+                    @foreach (var item in Model.CartItems)
+                    {
+                        <div class="card shadow-sm mb-3">
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col-md-6 d-flex align-items-center">
+                                        <img src="~/assets/images/@item.Product.picture" class="rounded" width="90" height="90" style="object-fit: cover;" />
+                                        <div class="ms-3">
+                                            <h5 class="mb-1">@item.Product.Name</h5>
+                                            <p class="text-muted mb-0">R @item.Product.Price.ToString("F2") each</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <input type="number" min="1" class="form-control quantity-input text-center"
+                                               value="@item.Count" data-product-id="@item.ProductId" data-product-price="@item.Product.Price" />
+                                    </div>
+                                    <div class="col-md-2 text-center fw-bold text-danger price1">
+                                        R@((item.Product.Price * item.Count).ToString("F2"))
+                                    </div>
+                                    <div class="col-md-2 text-end">
+                                        <a class="btn btn-outline-danger btn-sm" href="@Url.Action("RemoveFromCart", "ShoppingCart", new { id = item.ProductId })">
+                                            <i class="fa fa-trash"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Promo Code Toggle -->
+                    <div class="mt-4">
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="hasPromoCodeCheckbox" />
+                            <label class="form-check-label fw-bold" for="hasPromoCodeCheckbox">
+                                I have a promo code
+                            </label>
+                        </div>
+
+                        <div id="promoCodeContainer" style="display: none;">
+                            <input type="text" id="promoCodeTextBox" class="form-control" placeholder="Enter promo code" />
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(promoCodeMessage))
+                        {
+                            <div class="alert alert-info mt-2">@promoCodeMessage</div>
+                        }
+                    </div>
+
+                    <div class="form-group mt-4">
+                        <label class="fw-bold">Choose Delivery Option</label>
+                        <select class="form-select" id="deliveryOption" required>
+                            <option value="">-- Select Option --</option>
+                            <option value="EatIn">Eat in Restaurant</option>
+                            <option value="RoomService">Deliver to My Room</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group mt-3" id="timeSelection" style="display:none;">
+                        <label class="fw-bold">Preferred Delivery Time</label>
+                        <input type="time" id="deliveryTime" class="form-control" />
+                        <small class="text-muted">Allowed time: now until 21:00</small>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <div class="card p-4 shadow-sm">
+                        <h4 class="fw-bold mb-3">Order Summary</h4>
+
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Subtotal</span>
+                            <span>R @Model.CartTotal.ToString("F2")</span>
+                        </div>
+
+                        @if (discountAmount > 0)
+                        {
+                            <div class="d-flex justify-content-between mb-2 text-success">
+                                <span>Discount (@discount.Percentage%)</span>
+                                <span>-R @discountAmount.ToString("F2")</span>
+                            </div>
+                        }
+
+                        @if (promoDiscountAmount > 0)
+                        {
+                            <div class="d-flex justify-content-between mb-2 text-success">
+                                <span>Promo Discount</span>
+                                <span>-R @promoDiscountAmount.ToString("F2")</span>
+                            </div>
+                        }
+
+                        <hr />
+                        <div class="d-flex justify-content-between fs-5 fw-bold">
+                            <span>Total</span>
+                            <span class="text-success">R @finalTotal.ToString("F2")</span>
+                        </div>
+
+                        <div class="mt-4 d-grid">
+                            <button class="btn btn-success btn-lg" onclick="confirmCheckout()">Proceed to Checkout</button>
+                            <a class="btn btn-outline-secondary mt-3" href="@Url.Action("Index", "StoreFront")">Continue Shopping</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const currentTime = `${hours}:${minutes}`;
+            const maxTime = "21:00";
+
+            $('#deliveryOption').on('change', function () {
+                if ($(this).val() === 'RoomService') {
+                    $('#timeSelection').slideDown();
+                    $('#deliveryTime').attr('min', currentTime);
+                    $('#deliveryTime').attr('max', maxTime);
+                } else {
+                    $('#timeSelection').slideUp();
+                    $('#deliveryTime').val('');
+                }
+            });
+
+            $('#hasPromoCodeCheckbox').on('change', function () {
+                if ($(this).is(':checked')) {
+                    $('#promoCodeContainer').slideDown();
+                } else {
+                    $('#promoCodeContainer').slideUp();
+                    $('#promoCodeTextBox').val('');
+                }
+            });
+
+            $('.quantity-input').on('change', function () {
+                const productId = $(this).data('product-id');
+                const quantity = $(this).val();
+                const price = $(this).data('product-price');
+                const newTotal = (price * quantity).toFixed(2);
+                $(this).closest('.card-body').find('.price1').text("R" + newTotal);
+                updateCartItemQuantity(productId, quantity);
+            });
+        });
+
+        function updateCartItemQuantity(productId, quantity) {
+            $.post('@Url.Action("UpdateCart", "ShoppingCart")', { productId, newQuantity: quantity })
+                .done(() => location.reload())
+                .fail(() => alert("Error updating cart."));
+        }
+
+        function confirmCheckout() {
+            const deliveryOption = $('#deliveryOption').val();
+            const time = $('#deliveryTime').val();
+            const promoCode = $('#hasPromoCodeCheckbox').is(':checked') ? $('#promoCodeTextBox').val() : '';
+
+            if (!deliveryOption) {
+                alert("Please select a delivery option.");
+                return;
+            }
+
+            if (deliveryOption === "RoomService" && !time) {
+                alert("Please select a preferred delivery time.");
+                return;
+            }
+
+            let url = '@Url.Action("Checkout", "ShoppingCart")' +
+                '?deliveryOption=' + deliveryOption +
+                (time ? '&preferredTime=' + encodeURIComponent(time) : '') +
+                (promoCode ? '&promoCode=' + encodeURIComponent(promoCode) : '');
+
+            if (confirm('Proceed to checkout?')) {
+                window.location.href = url;
+            }
+        }
+    </script>
+}

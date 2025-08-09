@@ -1,0 +1,49 @@
+﻿@model HotelSystem.Models.EventBooking
+@{
+    ViewBag.Title = "Confirm Payment";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+<div style="padding-top:5%"></div>
+
+<div class="container py-5">
+    <div class="card shadow-lg border-0 rounded-4">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0"><i class="fa fa-credit-card me-2"></i> Confirm Event Payment</h3>
+        </div>
+
+        <div class="card-body px-4 py-4">
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h5><i class="fa fa-building me-1"></i> Venue:</h5>
+                    <p>@(Model.EventQuote?.Venue.Name)</p>
+                </div>
+                <div class="col-md-6">
+                    <h5><i class="fa fa-calendar me-1"></i> Event Schedule:</h5>
+                    <p>
+                        <strong>Start:</strong> @(Model.EventQuote?.EventStartDateTime.ToString("f"))<br />
+                        <strong>End:</strong> @(Model.EventQuote?.EventEndDateTime.ToString("f"))
+                    </p>
+                </div>
+            </div>
+
+            <div class="alert alert-info mb-4 shadow-sm">
+                <h5 class="fw-bold mb-2"><i class="fa fa-file-invoice-dollar me-1"></i> Cost Breakdown</h5>
+                @Html.Raw(Model.EventQuote?.SummaryHtml)
+                <hr />
+                <h5 class="mt-3 fw-bold text-success">
+                    <i class="fa fa-wallet me-1"></i> Total Amount: @(Model.EventQuote?.TotalCost.ToString("R 0.00"))
+                </h5>
+            </div>
+
+            <p><strong>Status:</strong> @Model.Status</p>
+
+            <form method="post" action="@Url.Action("MakePayment", "Payment", new { bookingId = Model.EventBookingId })">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-success px-4">
+                    <i class="fa fa-lock me-1"></i> Proceed to Pay
+                </button>
+            </form>
+        </div>
+    </div>
+</div>

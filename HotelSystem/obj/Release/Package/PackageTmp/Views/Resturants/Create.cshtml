@@ -1,0 +1,53 @@
+﻿@model HotelSystem.Models.Resturant
+
+@{
+    ViewBag.Title = "Create Restaurant";
+}
+
+<div class="container mt-4" style="padding-top:5%">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Add New Restaurant</h4>
+        </div>
+
+        <div class="card-body">
+            @using (Html.BeginForm("Create", "Resturants", FormMethod.Post, new { enctype = "multipart/form-data" }))
+            {
+                @Html.AntiForgeryToken()
+
+                @Html.ValidationSummary(true, "", new { @class = "alert alert-danger" })
+
+                <div class="mb-3">
+                    @Html.LabelFor(model => model.Name, htmlAttributes: new { @class = "form-label" })
+                    @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control", placeholder = "Enter restaurant name" } })
+                    @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+                </div>
+
+                <div class="mb-3">
+                    @Html.Label("Restaurant Icon (Preview Below)", htmlAttributes: new { @class = "form-label" })
+                    <div class="mb-2">
+                        <img id="user_img" height="200" width="200" class="img-thumbnail" />
+                    </div>
+                    <input type="file" title="Upload restaurant icon" id="pictureFile" name="pictureFile" class="form-control" onchange="show(this)" />
+                </div>
+
+                <button type="submit" class="btn btn-success">Create</button>
+                <a href="@Url.Action("Index", "Resturants")" class="btn btn-secondary ms-2">Cancel</a>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script type="text/javascript">
+        function show(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    $('#user_img').attr('src', e.target.result);
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    </script>
+}

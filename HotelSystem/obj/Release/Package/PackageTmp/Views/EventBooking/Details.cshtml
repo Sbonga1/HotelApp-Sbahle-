@@ -1,0 +1,188 @@
+﻿@model HotelSystem.Models.EventBooking
+@{
+    ViewBag.Title = "Event Booking Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+
+<div style="padding-top:5%"></div>
+<div class="container py-5">
+    <div class="card shadow-lg border-0 rounded-4">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0"><i class="fa fa-calendar-check me-2"></i> Booking #@Model.EventBookingId Details</h3>
+        </div>
+
+        <div class="card-body px-4 py-4">
+
+            <!-- STATUS -->
+            <section class="mb-5">
+                <h5 class="fw-bold text-primary"><i class="fa fa-info-circle me-1"></i> Booking Status</h5>
+                <p><strong>Status:</strong> <span class="badge bg-secondary">@Model.Status</span></p>
+                <p><strong>Confirmed:</strong> @Model.ConfirmedAt.ToString("f")</p>
+                <p>
+                    <strong>Payment:</strong>
+                    <span class="badge bg-@(Model.IsPaid ? "success" : "warning")">
+                        @(Model.IsPaid ? "✅ 50% Deposit Paid" : "⚠️ Deposit Pending")
+                    </span>
+                </p>
+                <p><strong>Deposit Required:</strong> <span class="fw-bold text-dark">R @Model.DepositRequired.ToString("N2")</span></p>
+                <p><strong>Amount Paid:</strong> <span class="text-success fw-bold">R @Model.AmountPaid.ToString("N2")</span></p>
+
+                @if (Model.IsPaid)
+                {
+                    <p><strong>Payment Reference:</strong> <code>@Model.PaymentReference</code></p>
+                }
+                else
+                {
+                    var remaining = Model.DepositRequired - Model.AmountPaid;
+                    <p class="text-danger fw-bold">Remaining Deposit: R @remaining.ToString("N2")</p>
+                }
+            </section>
+
+            <!-- VENUE -->
+            <section class="mb-5">
+                <h5 class="fw-bold text-primary"><i class="fa fa-building me-1"></i> Venue Info</h5>
+                <div class="card shadow-sm border-0 rounded-4">
+                    <div class="row g-0">
+                        @if (!string.IsNullOrEmpty(Model.EventQuote.Venue.ImageUrl))
+                        {
+                            <div class="col-md-4">
+                                <img src="@Url.Content(Model.EventQuote.Venue.ImageUrl)" class="img-fluid rounded-start w-100 h-100" style="object-fit:cover;" />
+                            </div>
+                        }
+                        <div class="col-md-8">
+                            <div class="card-body">
+                                <h5 class="card-title">@Model.EventQuote.Venue.Name</h5>
+                                <p class="text-muted">@Model.EventQuote.Venue.Description</p>
+                                <p><i class="fa fa-users me-1"></i> Capacity: <strong>@Model.EventQuote.Venue.Capacity</strong></p>
+                                <p><i class="fa fa-calendar-alt me-1"></i> Start: @Model.EventQuote.EventStartDateTime.ToString("f")</p>
+                                <p><i class="fa fa-calendar-check me-1"></i> End: @Model.EventQuote.EventEndDateTime.ToString("f")</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- QUOTE SUMMARY -->
+            <section class="mb-5">
+                <h5 class="fw-bold text-primary"><i class="fa fa-file-invoice me-1"></i> Quote Summary</h5>
+                <div class="alert alert-light border shadow-sm">
+                    @Html.Raw(Model.EventQuote.SummaryHtml)
+                    <hr />
+                    <h5 class="fw-bold text-success mt-3">💰 Total Estimated Cost: R @Model.EventQuote.TotalCost.ToString("N2")</h5>
+                </div>
+            </section>
+
+            <!-- GUEST PREFERENCES -->
+            @if (!string.IsNullOrEmpty(Model.GuestPreferences))
+            {
+                <section class="mb-4">
+                    <h5 class="fw-bold text-primary"><i class="fa fa-comments me-1"></i> Guest Preferences</h5>
+                    <div class="alert alert-secondary">@Model.GuestPreferences</div>
+                </section>
+            }
+
+            <!-- VISIBILITY & OPTIONS -->
+            <section class="mb-5">
+                <h5 class="fw-bold text-primary"><i class="fa fa-toggle-on me-1"></i> Event Visibility</h5>
+                <p>
+                    <span class="badge bg-warning text-dark">Type:</span>
+                    <strong>@Model.EventQuote.EventType.ToString()</strong>
+                </p>
+
+                <!-- Buttons -->
+                <div class="d-flex flex-wrap gap-2 mt-3">
+                    @if (!User.IsInRole("Admin"))
+                    {
+                        if (Model.EventQuote.EventType.ToString() == "Private" && Model.IsPaid)
+                        {
+                            <a href="@Url.Action("SendRsvp", "EventBooking", new { id = Model.EventBookingId })" class="btn btn-outline-secondary">
+                                <i class="fa fa-envelope me-1"></i> Send RSVP
+                            </a>
+                        }
+                        else if (Model.EventQuote.EventType.ToString() == "Public" && Model.IsPaid)
+                        {
+                            <a href="@Url.Action("Index", "Ticket", new { id = Model.EventBookingId })" class="btn btn-outline-warning">
+                                <i class="fa fa-ticket-alt me-1"></i> Ticket Types
+                            </a>
+                        }
+
+                        if (Model.IsPaid)
+                        {
+                            <a href="@Url.Action("Scan", "Ticket", new { id = Model.EventBookingId })" class="btn btn-outline-danger">
+                                <i class="fa fa-qrcode me-1"></i> Scan Tickets
+                            </a>
+                        }
+                    }
+
+                    @if (Model.EventQuote.EventType.ToString() == "Public")
+                    {
+                        <a href="@Url.Action("PublicEventAnalytics", "EventBooking", new { id = Model.EventBookingId })" class="btn btn-outline-dark">
+                            <i class="fa fa-chart-bar me-1"></i> Ticket Sales & Revenue
+                        </a>
+                    }
+                    else if (Model.EventQuote.EventType.ToString() == "Private")
+                    {
+                        <a href="@Url.Action("PrivateEventAnalytics", "EventBooking", new { id = Model.EventBookingId })" class="btn btn-outline-dark">
+                            <i class="fa fa-users me-1"></i> RSVP Stats
+                        </a>
+                    }
+                </div>
+            </section>
+
+            <!-- PAYMENT BUTTONS -->
+            <section class="mb-5">
+                <div class="d-flex flex-wrap gap-2">
+                    @if (!Model.IsPaid)
+                    {
+                        <a href="@Url.Action("MakePayment", "EventBooking", new { bookingId = Model.EventBookingId })" class="btn btn-success">
+                            <i class="fa fa-credit-card me-1"></i> Pay 50% Deposit
+                        </a>
+                    }
+                    else if (Model.Status == "Awaitiing Final Payment")
+                    {
+                        <a href="@Url.Action("DownloadFinalInvoice", "EventBooking", new { bookingId = Model.EventBookingId })" class="btn btn-outline-dark">
+                            <i class="fa fa-download me-1"></i> Download Invoice (PDF)
+                        </a>
+
+                        <a href="@Url.Action("FinalInvoice", "EventBooking", new { bookingId = Model.EventBookingId })" class="btn btn-warning">
+                            <i class="fa fa-file-invoice-dollar me-1"></i> View Final Invoice
+                        </a>
+                    }
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <section class="mb-5">
+                            <h5 class="fw-bold text-primary"><i class="fa fa-table me-1"></i> Table Management</h5>
+
+                            <div class="d-flex flex-wrap gap-2">
+                                <a href="@Url.Action("AssignWaiterToTable", "TableAssignment", new { bookingId = Model.EventBookingId })" class="btn btn-outline-info">
+                                    <i class="fa fa-users-cog me-1"></i> Assign Waiters
+                                </a>
+
+                                <a href="@Url.Action("TablesForEvent", "EventTables", new { eventId = Model.EventBookingId })" class="btn btn-outline-dark">
+                                    <i class="fa fa-table me-1"></i> View Event Tables
+                                </a>
+                            </div>
+                        </section>
+                    }
+
+
+
+                    @if (Model.IsPaid && Model.EventQuote.EventType.ToString() == "Public")
+                    {
+                        <a href="@Url.Action("PostToFacebook", "EventBooking", new { eventId = Model.EventBookingId })" class="btn btn-outline-primary">
+                            <i class="fab fa-facebook me-1"></i> Post to Facebook
+                        </a>
+                    }
+                </div>
+            </section>
+
+            <!-- BACK -->
+            <div class="text-end mt-4">
+                <a href="@Url.Action(User.IsInRole("Admin") ? "Index" : "MyBookings", "EventBooking")" class="btn btn-secondary px-4">
+                    <i class="fa fa-arrow-left me-1"></i> Back to List
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

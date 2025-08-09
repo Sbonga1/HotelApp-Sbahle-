@@ -1,0 +1,166 @@
+﻿@using System.Globalization
+@using HotelSystem.Models
+@model HotelSystem.ViewModels.ShoppingCartViewModel
+
+@{
+    ViewBag.Title = "Store Checkout";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var discount = Model.Discount;
+    double discountPercentage = discount != null ? discount.Percentage / 100.0 : 0;
+
+    double discountAmount = Model.DiscountAmount;
+    double finalTotal = Model.FinalTotal;
+
+    string promoCodeMessage = ViewBag.PromoCodeMessage != null ? ViewBag.PromoCodeMessage : "";
+}
+
+<section class="w3l-index-about py-5" id="about2">
+    <div class="container py-md-5 py-2">
+        <h3 class="mb-4">
+            <span class="fa fa-shopping-cart"></span> Your Shopping Cart
+        </h3>
+
+        <div id="update-message" class="text-info mb-3"></div>
+
+        @if (Model.CartItems.Count == 0)
+        {
+            <div class="alert alert-warning">
+                Your shopping cart is empty, <a href="~/StoreFront/Index/1" class="alert-link">continue shopping</a>.
+            </div>
+        }
+        else
+        {
+            <!-- Cart Items -->
+            <div class="cartcontainer">
+                <div class="main-bar d-flex justify-content-between align-items-center mb-3">
+                    <div class="product"><h5>Product</h5></div>
+                    <div class="quantity"><h5>Quantity</h5></div>
+                    <div class="price"><h5>Price</h5></div>
+                </div>
+
+                @foreach (var item in Model.CartItems)
+                {
+                    <div class="card mb-3 shadow-sm">
+                        <div class="card-body d-flex justify-content-between align-items-center">
+                            <div class="d-flex align-items-center">
+                                <div class="image1 mr-3">
+                                    <img src="~/assets/images/@item.Product.picture" alt="item1" class="img-fluid rounded" style="width:100px; height:90px;">
+                                </div>
+                                <div>
+                                    <p class="mb-0">@Html.ActionLink(item.Product.Name, "Details", "Products", new { id = item.ProductId }, null)</p>
+                                </div>
+                            </div>
+                            <div>
+                                <input type="number" min="1" class="form-control quantity-input" value="@item.Count" style="width: 80px;" data-product-id="@item.ProductId" data-product-price="@item.Product.Price" />
+                            </div>
+                            <div class="price-and-remove text-right">
+                                <p class="mb-1 font-weight-bold price1">R@((item.Product.Price * item.Count))</p>
+                                <button type="button" class="btn btn-outline-danger" onclick="location.href='@Url.Action("RemoveFromCart", "ShoppingCart", new { id = item.ProductId })'">
+                                    <span class="fa fa-trash"></span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <!-- Discount Section -->
+                @if (discountAmount > 0)
+                {
+                    <div class="discount-section mt-4 d-flex justify-content-between align-items-center">
+                        <h5 class="discount1 text-success">Discount Applied (@(discount.Percentage)%)</h5>
+                        <h5 class="discount2 font-weight-bold text-success">- R @discountAmount.ToString("F2")</h5>
+                    </div>
+                }
+
+                <!-- Promo Code Section -->
+                <div class="promo-code-section mt-4">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="promoCodeCheckbox">
+                        <label class="form-check-label" for="promoCodeCheckbox">
+                            I have a promo code
+                        </label>
+                    </div>
+
+                    <div class="form-group mt-3" id="promoCodeInput" style="display:none;">
+                        <input type="text" class="form-control" id="promoCodeTextBox" placeholder="Enter promo code">
+                        <button type="button" class="btn btn-primary mt-2" id="applyPromoButton">Apply</button>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(promoCodeMessage))
+                    {
+                        <div class="alert alert-info mt-2">@promoCodeMessage</div>
+                    }
+                </div>
+
+                <!-- Total Price -->
+                <div class="total d-flex justify-content-between align-items-center mt-4">
+                    <h5 class="total1">Final Total</h5>
+                    <h5 class="total2 font-weight-bold" id="cart-total">R @finalTotal.ToString("F2")</h5>
+                </div>
+
+                <!-- Checkout -->
+                <div class="checkout mt-4 text-right">
+                    <button type="button" class="btn btn-success btn-lg" onclick="confirmCheckout()">Checkout</button>
+                    <a href="~/StoreFront/Index/1" class="btn btn-outline-secondary btn-lg ml-3">Continue Shopping >></a>
+                </div>
+            </div>
+        }
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('.quantity-input').on('change', function () {
+                var productId = $(this).data('product-id');
+                var quantity = $(this).val();
+                var pricePerUnit = $(this).data('product-price');
+                var $priceElement = $(this).closest('.card-body').find('.price1');
+
+                // Update the subtotal for the item on the client side
+                var newSubtotal = (pricePerUnit * quantity).toFixed(2);
+                $priceElement.text('R' + newSubtotal);
+
+                // Update the cart total on the server
+                updateCartItemQuantity(productId, quantity);
+            });
+
+            // Show or hide promo code input
+            $('#promoCodeCheckbox').on('change', function() {
+                $('#promoCodeInput').toggle(this.checked);
+            });
+
+            // Apply promo code
+            $('#applyPromoButton').on('click', function() {
+                var promoCode = $('#promoCodeTextBox').val();
+                window.location.href = '@Url.Action("Checkout", "ShoppingCart", new { promoCode = "__PROMO__" })'.replace('__PROMO__', promoCode);
+            });
+        });
+
+        function updateCartItemQuantity(productId, quantity) {
+            $.ajax({
+                url: '@Url.Action("UpdateCart", "ShoppingCart")',
+                type: 'POST',
+                data: {
+                    productId: productId,
+                    newQuantity: quantity
+                },
+                success: function (response) {
+                    $('#cart-total').text('R ' + response.cartTotal.toFixed(2));
+                    $('#update-message').text(response.message).fadeIn().delay(3000).fadeOut();
+                    location.href = '@Url.Action("Index", "ShoppingCart")'
+                },
+                error: function () {
+                    alert('Error updating cart item.');
+                }
+            });
+        }
+
+        function confirmCheckout() {
+            if (confirm('Are you sure you want to proceed to checkout?')) {
+                location.href = '@Url.Action("Checkout", "ShoppingCart")';
+            }
+        }
+    </script>
+}

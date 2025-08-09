@@ -1,0 +1,96 @@
+﻿@model HotelSystem.ViewModels.BuyTicketViewModel
+@{
+    ViewBag.Title = "Buy Tickets";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+<div style="padding-top:5%"></div>
+<div class="container py-5">
+    <div class="card shadow border-0 rounded-4">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0"><i class="fa fa-ticket-alt me-2"></i> Buy Tickets</h3>
+        </div>
+        <div class="card-body px-4 py-4">
+            <!-- Event Summary -->
+            <div class="mb-4">
+                <h5 class="fw-bold"><i class="fa fa-calendar me-1"></i> @Model.EventTitle</h5>
+                <p><i class="fa fa-calendar-day me-1"></i> <strong>Date:</strong> @Model.EventDate.ToString("f")</p>
+                <p><i class="fa fa-map-marker-alt me-1"></i> <strong>Venue:</strong> @Model.Venue</p>
+            </div>
+
+            @using (Html.BeginForm("Buy", "Ticket", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(m => m.EventBookingId)
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Select Ticket Type</label>
+                    <select id="SelectedTicketTypeId" name="SelectedTicketTypeId" class="form-control">
+                        <option value="">-- Select --</option>
+                        @foreach (var type in Model.AvailableTicketTypes)
+                        {
+                            var remaining = type.Quantity - type.SoldQuantity;
+
+                            if (remaining <= 0)
+                            {
+                                <option value="@type.TicketTypeId" disabled>
+                                    @type.Name (Sold Out)
+                                </option>
+                            }
+                            else
+                            {
+                                var remainingText = remaining >= 10 ? $" - {remaining} left" : $" - Only {remaining} left!";
+                                <option value="@type.TicketTypeId"
+                                        data-price="@type.Price"
+                                        data-max="@remaining">
+                                    @type.Name - R @type.Price@remainingText
+                                </option>
+                            }
+                        }
+                    </select>
+                    @Html.ValidationMessageFor(m => m.SelectedTicketTypeId, "", new { @class = "text-danger" })
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Quantity</label>
+                    @Html.TextBoxFor(m => m.Quantity, new { @class = "form-control", type = "number", min = "1", id = "Quantity" })
+                    @Html.ValidationMessageFor(m => m.Quantity, "", new { @class = "text-danger" })
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Total Price:</label>
+                    <div id="FinalPrice" class="fw-bold text-success">R0.00</div>
+                </div>
+
+                <div class="text-end">
+                    <button type="submit" class="btn btn-success px-4">
+                        <i class="fa fa-arrow-right me-1"></i> Submit
+                    </button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function updateTotal() {
+            const selected = $("#SelectedTicketTypeId option:selected");
+            const price = parseFloat(selected.data("price")) || 0;
+            const max = parseInt(selected.data("max")) || 1;
+
+            let qty = parseInt($("#Quantity").val()) || 1;
+            if (qty > max) {
+                qty = max;
+                $("#Quantity").val(max);
+            }
+
+            const total = price * qty;
+            $("#FinalPrice").text("R" + total.toFixed(2));
+        }
+
+        $(document).ready(function () {
+            $("#SelectedTicketTypeId, #Quantity").on("change keyup", updateTotal);
+        });
+    </script>
+}

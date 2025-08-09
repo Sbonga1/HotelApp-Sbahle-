@@ -1,0 +1,123 @@
+﻿@model List<HotelSystem.ViewModels.CustomerWalletViewModel>
+
+@{
+    ViewBag.Title = "Wallet Analytics";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta2/css/all.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="container mt-5" style="padding-top:5%">
+    <h2 class="mb-3 text-center text-danger fw-bold">
+        <i class="fas fa-wallet"></i> Wallet Analytics Summary
+    </h2>
+
+    <!-- Summary Chart -->
+    <div class="mb-4">
+        <canvas id="walletChart" height="100"></canvas>
+    </div>
+
+    <!-- Search Section -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <form method="get" action="@Url.Action("WalletAnalytics")">
+                <div class="input-group">
+                    <span class="input-group-text bg-dark text-white"><i class="fas fa-search"></i></span>
+                    <input type="text" name="searchTerm" value="@ViewBag.CurrentSearch" class="form-control" placeholder="Search transactions by customer name or email..." />
+                    <button type="submit" class="btn btn-outline-dark"><i class="fas fa-search"></i> Search</button>
+                </div>
+            </form>
+        </div>
+        <div class="col-md-4 text-end">
+            <a class="btn btn-success me-2" href="@Url.Action("ExportToExcel")"><i class="fa fa-file-excel"></i> Excel</a>
+            <a class="btn btn-danger" href="@Url.Action("ExportToPdf")"><i class="fa fa-file-pdf"></i> PDF</a>
+        </div>
+    </div>
+
+    <!-- Transaction Table Cards -->
+    <div id="walletContainer">
+        @if (!Model.Any())
+        {
+            <div class="alert alert-warning text-center">
+                No customer found. Please try a different search.
+            </div>
+        }
+        else
+        {
+            foreach (var customer in Model)
+            {
+                <div class="wallet-card card mb-4 shadow-sm">
+                    <div class="card-header bg-danger text-white fw-bold">
+                        @customer.CustomerName <span class="fw-normal">(@customer.Email)</span>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Current Balance:</strong> <span class="text-success">R @customer.AccountBalance.ToString("F2")</span></p>
+
+                        <h5 class="mt-3 mb-2">Recent Transactions</h5>
+                        <table class="table table-sm table-bordered">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Type</th>
+                                    <th>Description</th>
+                                    <th>Amount (R)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var tx in customer.Transactions)
+                                {
+                                    <tr>
+                                        <td>@tx.Date.ToString("yyyy-MM-dd HH:mm")</td>
+                                        <td><span class="badge bg-@(tx.Type == "Credit" ? "success" : "danger")">@tx.Type</span></td>
+                                        <td>@tx.Description</td>
+                                        <td>R @tx.Amount.ToString("F2")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Total Summary Chart (Top-Ups vs Spendings)
+        const ctx = document.getElementById('walletChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Top-Ups', 'Spendings'],
+                datasets: [{
+                    label: 'Total Wallet Summary (R)',
+                    data: [@ViewBag.TotalTopUps, @ViewBag.TotalSpendings],
+                    backgroundColor: ['rgba(220, 53, 69, 0.7)', 'rgba(33, 37, 41, 0.7)'],
+                    borderColor: ['rgba(220, 53, 69, 1)', 'rgba(33, 37, 41, 1)'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function (context) {
+                                return `R ${context.parsed.y.toFixed(2)}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: 'Amount (R)' }
+                    }
+                }
+            }
+        });
+    </script>
+}

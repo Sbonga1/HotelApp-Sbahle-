@@ -1,0 +1,56 @@
+﻿@model IEnumerable<HotelSystem.Models.Apartment>
+
+@{
+    ViewBag.Title = "Apartments";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<link href="~/assets/cutomcss/site.css" rel="stylesheet" />
+<div class="container mt-5" style="padding-top:5%">
+    <div class="card shadow-lg rounded-4 p-4 animate-fade-in">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold mb-0">Apartments</h2>
+            @if (User.IsInRole("Admin"))
+            {
+                <a class="btn btn-primary" href="@Url.Action("Create")">Create New</a>
+            }
+        </div>
+
+        <div class="row">
+            @foreach (var item in Model)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 shadow-sm border-0">
+                        <img src="~/assets/images/@item.image"
+                             class="card-img-top rounded-top"
+                             style="height: 200px; object-fit: cover;" alt="@item.Room" />
+
+                        <div class="card-body">
+                            <h5 class="card-title">@item.Room</h5>
+                            <p class="card-text mb-1"><strong>Type:</strong> @item.RoomType</p>
+                            <p class="card-text mb-1"><strong>Capacity:</strong> @item.Capacity</p>
+                            <p class="card-text mb-1"><strong>Floor:</strong> @item.floor</p>
+                            <p class="card-text mb-1"><strong>Rating:</strong> @item.rating</p>
+                            <p class="card-text mb-1"><strong>Status:</strong> @item.Status</p>
+                            <p class="card-text"><small class="text-muted">@item.description</small></p>
+                        </div>
+
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <div class="card-footer d-flex justify-content-around bg-white border-top-0">
+                                <a href="@Url.Action("Edit", new { id = item.ID })" class="text-warning" title="Edit">
+                                    <i class="fa fa-pencil fa-lg"></i>
+                                </a>
+                                <a href="@Url.Action("Details", new { id = item.ID })" class="text-info" title="Details">
+                                    <i class="fa fa-eye fa-lg"></i>
+                                </a>
+                                <a href="@Url.Action("Delete", new { id = item.ID })" class="text-danger" title="Delete">
+                                    <i class="fa fa-trash fa-lg"></i>
+                                </a>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

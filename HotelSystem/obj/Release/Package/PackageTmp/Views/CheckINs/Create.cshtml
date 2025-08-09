@@ -1,0 +1,191 @@
+﻿@model HotelSystem.Models.CheckIN
+@{
+    ViewBag.Title = "Customer Check-In";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@Styles.Render("~/Content/css")
+@Scripts.Render("~/bundles/modernizr")
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+<div class="container mt-5" style="padding-top:5%">
+    <div class="card shadow-lg rounded-4 p-4 animate-fade-in">
+        <h2 class="text-center fw-bold mb-4">Customer Check-In</h2>
+        <div class="line mx-auto mb-4" style="width: 60px; height: 4px; background-color: #007bff;"></div>
+
+        @using (Html.BeginForm())
+        {
+            @Html.AntiForgeryToken()
+
+            if (ViewBag.Error != null)
+            {
+                <div class="alert alert-danger">@ViewBag.Error</div>
+            }
+
+            if (ViewBag.Success != null)
+            {
+                <div class="alert alert-success">@ViewBag.Success</div>
+            }
+
+            @Html.ValidationSummary(true, "", new { @class = "text-danger mb-3" })
+
+            <!-- QR Code Scanner -->
+            <div class="mb-3">
+                <label class="form-label fw-bold">Scan QR Code:</label>
+                <div id="qr-reader" style="width: 100%; max-width: 400px;"></div>
+                <small class="text-muted">Use your webcam to scan the reservation QR code.</small>
+            </div>
+
+            <!-- Reservation Number -->
+            <div class="mb-3">
+                <label class="form-label">Reservation Number:</label>
+                @Html.EditorFor(model => model.ID, new { htmlAttributes = new { @class = "form-control", @id = "ID" } })
+                @Html.ValidationMessageFor(model => model.ID, "", new { @class = "text-danger" })
+            </div>
+
+            <!-- Date and Time -->
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Check-In Date:</label>
+                    @Html.EditorFor(model => model.CheckinDate, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.CheckinDate, "", new { @class = "text-danger" })
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Check-In Time:</label>
+                    @Html.EditorFor(model => model.CheckinTime, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.CheckinTime, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <!-- Guest Details -->
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">First Name:</label>
+                    @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control", @id = "Name" } })
+                    @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Last Name:</label>
+                    @Html.EditorFor(model => model.Surname, new { htmlAttributes = new { @class = "form-control", @id = "Surname" } })
+                    @Html.ValidationMessageFor(model => model.Surname, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <!-- Signature Pads -->
+            <div class="row mb-4">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Receptionist Signature:</label>
+                    <canvas id="signature-pad" class="border rounded w-100" style="height: 150px;"></canvas>
+                    @Html.HiddenFor(model => model.Signature, new { id = "signature-data" })
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Customer Signature:</label>
+                    <canvas id="Custsignature-pad" class="border rounded w-100" style="height: 150px;"></canvas>
+                    @Html.HiddenFor(model => model.CustSignature, new { id = "Customersignature-data" })
+                </div>
+            </div>
+
+            <!-- Submit -->
+            <div class="text-end">
+                <input id="save-btn" type="submit" value="Submit" class="btn btn-primary px-4 py-2" />
+            </div>
+        }
+    </div>
+</div>
+
+@section scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/signature_pad/1.5.3/signature_pad.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode@2.3.7/html5-qrcode.min.js"></script>
+
+    <script>
+        let isValidReservation = false;
+        let pad1, pad2;
+
+        function resizeCanvas(canvas, pad) {
+            const ratio = Math.max(window.devicePixelRatio || 1, 1);
+            canvas.width = canvas.offsetWidth * ratio;
+            canvas.height = canvas.offsetHeight * ratio;
+            canvas.getContext("2d").scale(ratio, ratio);
+            pad.clear();
+        }
+
+        $(document).ready(function () {
+            const canvas1 = document.getElementById('signature-pad');
+            const canvas2 = document.getElementById('Custsignature-pad');
+            pad1 = new SignaturePad(canvas1);
+            pad2 = new SignaturePad(canvas2);
+
+            resizeCanvas(canvas1, pad1);
+            resizeCanvas(canvas2, pad2);
+
+            // Save signature data on form submission
+            $('form').on('submit', function () {
+                if (!isValidReservation) {
+                    showAlert("❌ Please scan a valid reservation QR code before submitting.");
+                    return false;
+                }
+
+                if (pad1.isEmpty() || pad2.isEmpty()) {
+                    showAlert("❌ Please ensure both signatures are captured.");
+                    return false;
+                }
+
+                $('#signature-data').val(pad1.toDataURL());
+                $('#Customersignature-data').val(pad2.toDataURL());
+
+                return true;
+            });
+
+            $('#ReservationCode').on('blur', function () {
+                const code = $(this).val().trim();
+                fetchReservationDetails(code);
+            });
+        });
+
+        function fetchReservationDetails(code) {
+            if (code === '') return;
+
+            $.get('/CheckINs/GetCustomerName', { reservationCode: code }, function (data) {
+                if (data.success) {
+                    $('#Name').val(data.firstName);
+                    $('#Surname').val(data.lastName);
+                    $('#HiddenReservationCode').val(code);
+                    $('#details-section').removeClass('d-none');
+                    isValidReservation = true;
+                    clearAlert();
+                } else {
+                    $('#Name').val('');
+                    $('#Surname').val('');
+                    $('#details-section').addClass('d-none');
+                    isValidReservation = false;
+                    showAlert("❌ Reservation not found. Please scan a valid code.");
+                }
+            });
+        }
+
+        function showAlert(message) {
+            $('#alert-placeholder').html(
+                `<div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        ${message}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                     </div>`);
+        }
+
+        function clearAlert() {
+            $('#alert-placeholder').html('');
+        }
+
+        function onScanSuccess(decodedText) {
+            $('#ReservationCode').val(decodedText).trigger('blur');
+            html5QrcodeScanner.clear();
+        }
+
+        const html5QrcodeScanner = new Html5QrcodeScanner("qr-reader", {
+            fps: 10,
+            qrbox: { width: 250, height: 250 }
+        });
+        html5QrcodeScanner.render(onScanSuccess);
+    </script>
+}
+

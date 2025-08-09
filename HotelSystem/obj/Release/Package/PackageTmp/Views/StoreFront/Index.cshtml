@@ -1,0 +1,108 @@
+﻿@model HotelSystem.Models.Category
+@using HotelSystem.Models
+@{
+    ViewBag.Title = Model.Name;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var db = new ApplicationDbContext();
+}
+
+@section Styles {
+    <style>
+        .category-sidebar {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+            padding: 20px;
+        }
+
+            .category-sidebar h4 {
+                color: #dc3545;
+                font-weight: 700;
+                margin-bottom: 20px;
+            }
+
+            .category-sidebar a {
+                display: block;
+                padding: 8px 0;
+                color: #343a40;
+                transition: 0.3s;
+            }
+
+                .category-sidebar a:hover {
+                    color: #dc3545;
+                    transform: translateX(5px);
+                }
+
+        .product-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-radius: 12px;
+        }
+
+            .product-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            }
+
+        .product-img {
+            height: 180px;
+            object-fit: contain;
+        }
+
+        .btn-outline-danger:hover {
+            background-color: #dc3545;
+            color: #fff;
+        }
+    </style>
+}
+<div style="padding-top: 5%"></div>
+<section class="banner-bottom py-5" style="background-color: #f8f9fa;" >
+    <div class="container">
+        <h2 class="text-center font-weight-bold display-4">@Model.Name</h2>
+        <hr class="mx-auto mb-5" style="width: 60px; border: 2px solid #dc3545;" />
+
+        <div class="row">
+            <!-- Sidebar -->
+            <aside class="col-md-3 mb-4">
+                <div class="category-sidebar">
+                    <h4>Categories</h4>
+                    <ul class="list-unstyled">
+                        @foreach (var item in db.Categories.ToList())
+                        {
+                            <li>
+                                <a href="@Url.Action("Index", "StoreFront", new { id = item.Id })"
+                                   class="@((item.Id == Model.Id) ? "font-weight-bold text-danger" : "")">
+                                    <i class="fa fa-chevron-right mr-2"></i> @item.Name
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </aside>
+
+            <!-- Products -->
+            <div class="col-md-9">
+                <div class="row">
+                    @foreach (var product in Model.Products)
+                    {
+                        <div class="col-md-4 mb-4 d-flex align-items-stretch">
+                            <div class="card product-card w-100 shadow-sm">
+                                <a href="@Url.Action("Single", "StoreFront", new { id = product.Id })">
+                                    <img class="card-img-top product-img" src="~/assets/images/@product.picture" alt="@product.Name" />
+                                </a>
+                                <div class="card-body text-center">
+                                    <h5 class="card-title">@product.Name</h5>
+                                    <p class="text-danger font-weight-bold">R @product.Price.ToString("F2")</p>
+                                </div>
+                                <div class="card-footer text-center bg-white border-0">
+                                    @Html.ActionLink("Add to Cart", "AddToCart", "ShoppingCart",
+                                        new { id = product.Id },
+                                        new { @class = "btn btn-sm btn-outline-danger px-4" })
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

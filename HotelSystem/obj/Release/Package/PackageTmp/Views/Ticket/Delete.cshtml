@@ -1,0 +1,47 @@
+﻿@model HotelSystem.Models.TicketType
+@{
+    ViewBag.Title = "Delete Ticket Type";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+
+<div class="container py-5">
+    <div class="card shadow-lg border-0 rounded-4">
+        <div class="card-header bg-danger text-white">
+            <h3 class="mb-0"><i class="fa fa-trash me-2"></i> Delete Ticket Type</h3>
+        </div>
+        <div class="card-body">
+            <p>Are you sure you want to delete the following ticket type?</p>
+
+            <dl class="row">
+                <dt class="col-sm-3">Name</dt>
+                <dd class="col-sm-9">@Model.Name</dd>
+
+                <dt class="col-sm-3">Price</dt>
+                <dd class="col-sm-9">R @Model.Price</dd>
+
+                @if (!string.IsNullOrEmpty(Model.Description))
+                {
+                    <dt class="col-sm-3">Description</dt>
+                    <dd class="col-sm-9">@Model.Description</dd>
+                }
+            </dl>
+
+            @using (Html.BeginForm("Delete", "TicketType", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(m => m.TicketTypeId)
+
+                <div class="text-end mt-4">
+                    <a href="@Url.Action("Details", "EventBooking", new { id = Model.EventBookingId })" class="btn btn-secondary me-2">
+                        <i class="fa fa-arrow-left me-1"></i> Cancel
+                    </a>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fa fa-trash-alt me-1"></i> Confirm Delete
+                    </button>
+                </div>
+            }
+        </div>
+    </div>
+</div>

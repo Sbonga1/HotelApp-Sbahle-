@@ -1,0 +1,125 @@
+﻿@model IEnumerable<HotelSystem.Models.WaiterAssignment>
+@using HotelSystem.Models
+@{
+    ApplicationDbContext db = new ApplicationDbContext();
+    ViewBag.Title = "My Assignments";
+}
+<div style="padding-top:5%"></div>
+<div class="container py-5">
+    <h2 class="mb-4 text-center fw-bold"><i class="fa fa-tasks"></i> My Assigned Orders</h2>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+    else if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info text-center">No assignments yet.</div>
+    }
+    else
+    {
+        foreach (var a in Model)
+        {
+            var order = a.CustomerOrder;
+            var orderedProd = db.Orderedproducts.Where(x => x.CustomerOrderId == order.Id).ToList();
+
+            <div class="card shadow-sm border-0 rounded-4 mb-4">
+                <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                    <span><strong>Order #</strong> @order.Id</span>
+                    <span><strong>Assigned:</strong> @a.AssignedAt.ToString("g")</span>
+                </div>
+
+                <div class="card-body">
+                    <p class="mb-2">
+                        <strong>Type:</strong> @a.AssignmentType <br />
+                        <strong>Status:</strong> <span class="badge bg-secondary">@order.Status</span><br />
+
+                        @if (a.AssignmentType == "RoomService")
+                        {
+                            <strong>Room:</strong> <span class="text-info">@order.RoomNumber</span><br />
+                            <strong>Preferred Time:</strong> <span class="text-info">@order.PreferredTime</span>
+                        }
+                        else
+                        {
+                            <strong>Table Number:</strong>
+                            if (order.TableNumber != null && order.TableNumber !=0 )
+                            {
+                                <span class="text-info">@order.TableNumber</span>
+                            }
+                            else
+                            {
+                                <span class="text-warning">Not yet set</span>
+                                <form method="post" action="@Url.Action("UpdateTableNumber", "Waiter")" class="d-flex mt-2">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="orderId" value="@order.Id" />
+                                    <input type="number" class="form-control me-2" name="tableNumber" placeholder="Enter table #" required />
+                                    <button type="submit" class="btn btn-sm btn-outline-success">Set</button>
+                                </form>
+                            }
+                        }
+                    </p>
+
+                    @if (orderedProd.Any())
+                    {
+                        <h6 class="mt-4">Order Items:</h6>
+                        <table class="table table-bordered table-sm">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Qty</th>
+                                    <th>Price</th>
+                                    <th>Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in orderedProd)
+                                {
+                                    var subtotal = item.Quantity * item.Product.Price;
+                                    <tr>
+                                        <td>@item.Product.Name</td>
+                                        <td>@item.Quantity</td>
+                                        <td>R @item.Product.Price.ToString("F2")</td>
+                                        <td class="text-success">R @subtotal.ToString("F2")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+
+                <div class="mt-3 d-flex justify-content-between align-items-center">
+                    <a href="@Url.Action("TrackOrder", "OrderedProducts", new { id = order.Id })" class="btn btn-outline-primary">
+                        <i class="fa fa-map-marker-alt"></i> Track Order
+                    </a>
+
+                    @if (a.AssignmentType == "RoomService" && order.Status == "Preparing")
+                    {
+                        <a href="@Url.Action("ConfirmRoomService", "Waiter")" class="btn btn-success">
+                            <i class="fa fa-check-circle"></i> Confirm Delivery
+                        </a>
+                    }
+                    else if (a.AssignmentType == "EatIn" && order.Status == "Preparing")
+                    {
+                        if (order.TableNumber != null && order.TableNumber != 0)
+                        {
+                            <form method="post" action="@Url.Action("MarkAsCompleted", "Waiter")">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="orderId" value="@order.Id" />
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fa fa-check-circle"></i> Mark as Served
+                                </button>
+                            </form>
+                        }
+                        
+
+                    }
+                </div>
+                </div>
+            </div>
+        }
+    }
+</div>

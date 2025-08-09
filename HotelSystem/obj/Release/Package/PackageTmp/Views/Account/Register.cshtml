@@ -1,0 +1,54 @@
+﻿@model HotelSystem.Models.RegisterViewModel
+@{
+    ViewBag.Title = "Register";
+}
+
+<link href="~/assets/cutomcss/login.css" rel="stylesheet" />
+<main aria-labelledby="title" class="login-page" style="padding-top:5%">
+    <div class="login-card animate-fade-in">
+        <h2 id="title">@ViewBag.Title</h2>
+
+        @using (Html.BeginForm("Register", "Account", FormMethod.Post, new { role = "form" }))
+        {
+            @Html.AntiForgeryToken()
+            <h4>Create a new account.</h4>
+            <hr />
+            @Html.ValidationSummary("", new { @class = "text-danger" })
+
+            <div class="form-group">
+                @Html.LabelFor(m => m.Email)
+                @Html.TextBoxFor(m => m.Email, new { @class = "form-control" })
+                @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger" })
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(m => m.Name)
+                @Html.TextBoxFor(m => m.Name, new { @class = "form-control" })
+                @Html.ValidationMessageFor(m => m.Name, "", new { @class = "text-danger" })
+            </div>
+        <div class="form-group">
+                @Html.LabelFor(m => m.Surname)
+                @Html.TextBoxFor(m => m.Surname, new { @class = "form-control" })
+                @Html.ValidationMessageFor(m => m.Surname, "", new { @class = "text-danger" })
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(m => m.Password)
+                @Html.PasswordFor(m => m.Password, new { @class = "form-control" })
+                @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(m => m.ConfirmPassword)
+                @Html.PasswordFor(m => m.ConfirmPassword, new { @class = "form-control" })
+                @Html.ValidationMessageFor(m => m.ConfirmPassword, "", new { @class = "text-danger" })
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">Register</button>
+        }
+    </div>
+</main>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

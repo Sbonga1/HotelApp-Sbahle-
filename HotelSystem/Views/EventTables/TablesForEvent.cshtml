@@ -1,0 +1,62 @@
+﻿@model IEnumerable<HotelSystem.Models.EventTable>
+@{
+    ViewBag.Title = "Event Tables";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var venueName = ViewBag.VenueName as string;
+    var eventId = ViewBag.EventId;
+}
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+
+<div class="container py-5">
+    <div class="card shadow-lg border-0 rounded-4">
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+            <h4 class="mb-0"><i class="fa fa-table me-2"></i> Tables at @venueName</h4>
+            <a href="@Url.Action("Details", "EventBooking", new { id = eventId })" class="btn btn-light">
+                <i class="fa fa-arrow-left me-1"></i> Back to Booking
+            </a>
+        </div>
+
+        <div class="card-body">
+            @if (!Model.Any())
+            {
+                <div class="alert alert-info text-center">
+                    <i class="fa fa-info-circle me-1"></i> No tables have been created for this venue yet.
+                </div>
+            }
+            else
+            {
+                <div class="row">
+                    @foreach (var table in Model)
+                    {
+                        <div class="col-md-4 mb-4">
+                            <div class="card border-0 shadow-sm rounded-4 h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title fw-bold">@table.TableName</h5>
+                                    <p><i class="fa fa-users me-1"></i> Seats: <strong>@(table.Seats?.Count ?? 0)</strong></p>
+                                    <p>
+                                        <i class="fa fa-user-tie me-1"></i> Waiter:
+                                        <strong>
+                                            @if (!string.IsNullOrEmpty(table.AssignedWaiterEmail))
+                                            {
+                                                @table.AssignedWaiterEmail
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">Not Assigned</span>
+                                            }
+                                        </strong>
+                                    </p>
+
+                                    <a href="@Url.Action("EventTablesSeats", "EventTables", new { eventId = eventId, tableId = table.EventTableId })" class="btn btn-outline-primary w-100">
+                                        <i class="fa fa-chair me-1"></i> View Seats
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>

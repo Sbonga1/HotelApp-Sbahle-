@@ -1,0 +1,48 @@
+﻿@model HotelSystem.Models.EventFoodSelection
+@{
+    ViewBag.Title = "Serve Guest";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div style="padding-top:5%"></div>
+<div class="container py-5">
+    <div class="card shadow border-0 rounded-4">
+        <div class="card-header bg-success text-white">
+            <h4 class="mb-0"><i class="fa fa-check me-2"></i> Serve Guest at Table: @ViewBag.TableName</h4>
+        </div>
+        <div class="card-body">
+            <p><strong>🎟️ Guest:</strong> @ViewBag.Email</p>
+            <p><strong>💺 Seat Number:</strong> @ViewBag.SeatNumber</p>
+            <p><strong>🏢 Venue:</strong> @ViewBag.Venue</p>
+
+            @if (Model != null)
+            {
+                <div class="alert alert-success mt-3">
+                    <h5 class="fw-bold">🍽️ Meal Voucher</h5>
+                    <p><strong>Dish:</strong> @Model.Product.Name</p>
+                    <p><strong>Description:</strong> @Model.Product.Description</p>
+                </div>
+
+                using (Html.BeginForm("ServeGuestConfirmed", "Waiter", FormMethod.Post))
+                {
+                    int seat=ViewBag.SeatId;
+                    @Html.AntiForgeryToken()
+                    @Html.Hidden("seatId", seat)
+
+                    <button type="submit" class="btn btn-success mt-4 px-4">
+                        <i class="fa fa-check-circle me-1"></i> Confirm Served
+                    </button>
+                }
+            }
+            else
+            {
+                <div class="alert alert-warning mt-3">This guest has not selected a meal yet.</div>
+            }
+
+            <div class="mt-4 text-end">
+                <a href="@Url.Action("MyEventTables", "Waiter")" class="btn btn-secondary">
+                    <i class="fa fa-arrow-left me-1"></i> Back to Tables
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

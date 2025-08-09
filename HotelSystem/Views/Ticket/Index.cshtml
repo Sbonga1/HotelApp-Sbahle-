@@ -1,0 +1,72 @@
+﻿@model IEnumerable<HotelSystem.Models.TicketType>
+@{
+    ViewBag.Title = "Ticket Types";
+    var eventId = ViewBag.EventId as int?;
+    var eventTitle = ViewBag.EventTitle as string ?? "Event";
+    var capacity = ViewBag.Capacity as int? ?? 0;
+}
+<div style="padding-top:5%"></div>
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="mb-0"><i class="fa fa-ticket-alt me-2"></i> Ticket Types for <span class="text-primary">@eventTitle</span></h3>
+        @if (eventId.HasValue)
+        {
+            <a href="@Url.Action("Create", "Ticket", new { eventId = eventId.Value })" class="btn btn-primary">
+                <i class="fa fa-plus"></i> Create New
+            </a>
+        }
+    </div>
+
+    <p class="text-muted mb-4"><i class="fa fa-users me-1"></i> Max Guests: <strong>@capacity</strong></p>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            <i class="fa fa-info-circle"></i> No ticket types found for this event.
+        </div>
+    }
+    else
+    {
+        <table class="table table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>Name</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Description</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.Name</td>
+                        <td>@item.Price.ToString("R 0.00")</td>
+                        <td>
+                            <span class="badge bg-success">@item.Quantity</span>
+                        </td>
+                        <td>@item.Description</td>
+                        <td class="text-end">
+                            <a href="@Url.Action("Edit", new { id = item.TicketTypeId })" class="btn btn-sm btn-warning me-2">
+                                <i class="fa fa-edit"></i> Edit
+                            </a>
+                            <a href="@Url.Action("Delete", new { id = item.TicketTypeId })" class="btn btn-sm btn-danger">
+                                <i class="fa fa-trash"></i> Delete
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+
+    <div class="mt-4">
+        <a href="@Url.Action("Details", "EventBooking", new { id = eventId })" class="btn btn-secondary">
+            <i class="fa fa-arrow-left me-1"></i> Back to Event
+        </a>
+    </div>
+</div>

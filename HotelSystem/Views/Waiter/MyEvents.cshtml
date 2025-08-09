@@ -1,0 +1,33 @@
+﻿@model IEnumerable<HotelSystem.Models.EventBooking>
+@{
+    ViewBag.Title = "My Events";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="container py-5">
+    <h2 class="mb-4"><i class="fa fa-calendar-check me-2"></i> My Assigned Events</h2>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-warning">You are not assigned to any events.</div>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var booking in Model)
+            {
+                <div class="col-md-6 mb-4">
+                    <div class="card shadow-sm rounded-4">
+                        <div class="card-body">
+                            <h5 class="card-title fw-bold">Event ID: @booking.EventBookingId</h5>
+                            <p><i class="fa fa-building me-1"></i> Venue: @booking.EventQuote.Venue.Name</p>
+                            <p><i class="fa fa-calendar me-1"></i> Date: @booking.EventQuote.EventStartDateTime.ToString("D")</p>
+                            <a href="@Url.Action("MyEventTables", "Waiter", new { eventId = booking.EventBookingId })" class="btn btn-outline-primary w-100">
+                                <i class="fa fa-table me-1"></i> View Assigned Tables
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

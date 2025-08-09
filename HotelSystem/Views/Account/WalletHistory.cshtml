@@ -1,0 +1,74 @@
+﻿@model IEnumerable<HotelSystem.Models.WalletTransaction>
+
+@{
+    ViewBag.Title = "Wallet History";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div style="padding-top:5%"></div>
+<div class="container py-5" >
+    <h2 class="mb-4 text-center text-danger fw-bold">
+        💳 Wallet Transactions
+    </h2>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info text-center">
+            No transactions found in your wallet history.
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var t in Model)
+            {
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100 shadow-sm border-0 wallet-card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="badge bg-@(t.Type == "Credit" ? "success" : "danger") px-3 py-1">
+                                    <i class="fa @(t.Type == "Credit" ? "fa-arrow-down" : "fa-arrow-up") me-1"></i> @t.Type
+                                </span>
+                                <small class="text-muted">@t.Date.ToString("yyyy-MM-dd HH:mm")</small>
+                            </div>
+
+                            <h5 class="fw-bold">@t.Description</h5>
+
+                            <p class="mb-1">
+                                <strong>Amount:</strong>
+                                <span class="@(t.Type == "Credit" ? "text-success" : "text-danger")">
+                                    R @t.Amount.ToString("F2")
+                                </span>
+                            </p>
+
+                            <p class="mb-0">
+                                <strong>Balance After:</strong> R @t.BalanceAfterTransaction.ToString("F2")
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<style>
+    .wallet-card {
+        transition: all 0.2s ease-in-out;
+        border-left: 5px solid #dc3545;
+        border-radius: 12px;
+    }
+
+        .wallet-card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.05);
+        }
+
+        .wallet-card .badge {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+        }
+
+        .wallet-card h5 {
+            font-size: 1rem;
+        }
+</style>

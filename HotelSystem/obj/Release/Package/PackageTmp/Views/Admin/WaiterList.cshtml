@@ -1,0 +1,74 @@
+﻿@model IEnumerable<HotelSystem.Models.Waiter>
+@{
+    ViewBag.Title = "All Waiters";
+}
+<div style="padding-top:5%"></div>
+<div class="container py-5" >
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold mb-0">
+            <i class="fa fa-users"></i> All Waiters
+        </h2>
+        <a href="@Url.Action("CreateWaiter", "Admin")" class="btn btn-danger">
+            <i class="fa fa-plus-circle"></i> Create New Waiter
+        </a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info text-center">No waiters found.</div>
+    }
+    else
+    {
+        <!-- Search Input -->
+        <div class="row mb-4">
+            <div class="col-md-6 offset-md-3">
+                <input type="text" id="searchBox" class="form-control form-control-lg" placeholder="🔍 Search by name or email..." />
+            </div>
+        </div>
+
+        <!-- Waiter Cards -->
+        <div id="waiterList" class="row row-cols-1 row-cols-md-3 g-4">
+            @foreach (var waiter in Model)
+            {
+                <div class="col waiter-card" data-name="@waiter.FullName.ToLower()" data-email="@waiter.Email.ToLower()">
+                    <div class="card shadow-sm h-100 text-center border-0">
+                        <img src="~/assets/images/@(string.IsNullOrEmpty(waiter.ProfilePicture) ? "default-user.png" : waiter.ProfilePicture)"
+                             class="card-img-top rounded-top"
+                             style="height: 250px; object-fit: cover;"
+                             alt="Waiter Image" />
+
+                        <div class="card-body">
+                            <h5 class="card-title mb-2">@waiter.FullName</h5>
+                            <p class="card-text text-muted small mb-0"><strong>Email:</strong> @waiter.Email</p>
+                            <p class="card-text text-muted small mb-0"><strong>Phone:</strong> @waiter.PhoneNumber</p>
+                            <p class="card-text text-muted small"><strong>Joined:</strong> @waiter.CreatedAt.ToString("dd MMM yyyy")</p>
+                        </div>
+
+                        <div class="card-footer bg-transparent border-0">
+                            <a href="@Url.Action("Profile", "Waiter", new { id = waiter.Id })"
+                               class="btn btn-outline-primary btn-sm">
+                                <i class="fa fa-user"></i> View Profile
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#searchBox').on('keyup', function () {
+                var value = $(this).val().toLowerCase();
+
+                $('#waiterList .waiter-card').filter(function () {
+                    var name = $(this).data('name');
+                    var email = $(this).data('email');
+                    $(this).toggle(name.includes(value) || email.includes(value));
+                });
+            });
+        });
+    </script>
+}

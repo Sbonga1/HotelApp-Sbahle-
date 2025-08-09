@@ -1,0 +1,36 @@
+﻿@model HotelSystem.Models.CustInfo
+
+@{
+    ViewBag.Title = "My Wallet";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-5" style="padding-top:5%">
+    <div class="card shadow-lg p-4">
+        <h2 class="mb-4 text-center">💼 My Wallet</h2>
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label><strong>Name:</strong></label>
+                <p>@Model.Name @Model.Surname</p>
+            </div>
+            <div class="col-md-6">
+                <label><strong>Email:</strong></label>
+                <p>@Model.Email</p>
+            </div>
+        </div>
+
+        <hr />
+
+        <div class="text-center">
+            <h4 class="text-danger">💰 Available Balance</h4>
+            <h2 class="display-4 text-bg-danger">R @Model.AccountBalance.ToString("F2")</h2>
+
+            <div class="mt-4">
+                <a href="@Url.Action("WalletHistory", "Account")" class="btn btn-outline-dark">
+                    📜 View Wallet Transaction History
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

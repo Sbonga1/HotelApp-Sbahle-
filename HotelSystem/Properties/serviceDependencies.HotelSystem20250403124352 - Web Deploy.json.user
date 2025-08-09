@@ -1,0 +1,20 @@
+{
+  "dependencies": {
+    "mssql2": {
+      "restored": true,
+      "restoreTime": "2025-05-27T18:53:08.2365623Z"
+    }
+  },
+  "parameters": {
+    "mssql2.resourceGroupName": {
+      "Name": "mssql2.resourceGroupName",
+      "Type": "resourceGroup",
+      "Value": "HotelSystem20250403124352ResourceGroup"
+    },
+    "mssql2.subscriptionId": {
+      "Name": "mssql2.subscriptionId",
+      "Type": "subscription",
+      "Value": "c8c7dda4-652c-4a1b-a145-d7b3e417b096"
+    }
+  }
+}

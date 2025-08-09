@@ -1,0 +1,131 @@
+﻿@{
+    ViewBag.Title = "Confirm Order Delivery";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!-- Custom Styles -->
+<style>
+    .confirm-card {
+        background: #fff;
+        border-radius: 16px;
+        padding: 40px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease-in-out;
+    }
+
+        .confirm-card:hover {
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.15);
+        }
+
+    .card-title-icon {
+        font-size: 1.5rem;
+        color: #28a745;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #495057;
+    }
+
+    .btn-confirm {
+        background-color: #28a745;
+        color: white;
+        font-weight: 600;
+        border-radius: 8px;
+        padding: 10px 24px;
+        transition: background-color 0.3s ease-in-out;
+    }
+
+        .btn-confirm:hover {
+            background-color: #218838;
+        }
+
+    #qr-reader {
+        width: 100%;
+        border-radius: 10px;
+        border: 2px dashed #ccc;
+        padding: 10px;
+        min-height: 250px;
+    }
+</style>
+
+<div style="padding-top:5%"></div>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="confirm-card">
+                <h2 class="text-center mb-4 fw-bold">
+                    <i class="fa fa-check-circle card-title-icon"></i> Confirm Order Delivery
+                </h2>
+
+                @if (TempData["Success"] != null)
+                {
+                    <div class="alert alert-success text-center">@TempData["Success"]</div>
+                }
+                else if (TempData["Error"] != null)
+                {
+                    <div class="alert alert-danger text-center">@TempData["Error"]</div>
+                }
+                else if (TempData["Info"] != null)
+                {
+                    <div class="alert alert-info text-center">@TempData["Info"]</div>
+                }
+
+                @using (Html.BeginForm("MarkAsCompleted", "Waiter", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+
+                    <div class="mb-4">
+                        <label class="form-label">Enter Unique Code</label>
+                        <input type="text" name="uniqueCode" id="uniqueCode" class="form-control form-control-lg" placeholder="e.g. 123456" required />
+                    </div>
+
+                    <div class="text-center mb-4">
+                        <span class="badge bg-secondary text-white px-3 py-2">OR</span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">Scan QR Code</label>
+                        <div id="qr-reader"></div>
+                    </div>
+
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-confirm">
+                            <i class="fa fa-check"></i> Confirm Delivery
+                        </button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <!-- html5-qrcode CDN -->
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <script>
+        function onScanSuccess(decodedText, decodedResult) {
+            console.log(`QR Code scanned: ${decodedText}`);
+            document.getElementById("uniqueCode").value = decodedText;
+
+            // Optionally, stop scanning after success
+            html5QrcodeScanner.clear();
+        }
+
+        function onScanError(errorMessage) {
+            // console.warn(`Scan error: ${errorMessage}`);
+        }
+
+        const html5QrcodeScanner = new Html5QrcodeScanner(
+            "qr-reader",
+            {
+                fps: 10,
+                qrbox: 250,
+                rememberLastUsedCamera: true
+            },
+                /* verbose= */ false
+        );
+
+        html5QrcodeScanner.render(onScanSuccess, onScanError);
+    </script>
+}

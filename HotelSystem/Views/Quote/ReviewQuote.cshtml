@@ -1,0 +1,205 @@
+﻿@model HotelSystem.ViewModels.AdminQuoteReviewViewModel
+@{
+    ViewBag.Title = "Review Quote";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var duration = (Model.EventEndDateTime - Model.EventStartDateTime).TotalHours;
+}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+<div style="padding-top:5%"></div>
+<div class="container py-5">
+    <div class="card shadow-lg border-0 rounded-4">
+        <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
+            <h3 class="mb-0"><i class="fa fa-edit me-2"></i> Review Quote #@Model.QuoteId</h3>
+            <span class="badge bg-dark text-white px-3 py-2 rounded-pill">@Model.EventType.ToUpper() Event</span>
+        </div>
+
+        <div class="card-body px-4 py-4">
+            @using (Html.BeginForm("ReviewQuote", "Quote", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(m => m.QuoteId)
+                <input type="hidden" name="ActionType" id="ActionType" value="" />
+
+                <!-- Client & Event Info -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold"><i class="fa fa-user me-1"></i> Client</label>
+                    <input class="form-control" value="@Model.ClientFullName" readonly />
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold"><i class="fa fa-calendar-alt me-1"></i> Start Time</label>
+                        <input class="form-control" value="@Model.EventStartDateTime.ToString("g")" readonly />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold"><i class="fa fa-calendar-check me-1"></i> End Time</label>
+                        <input class="form-control" value="@Model.EventEndDateTime.ToString("g")" readonly />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold"><i class="fa fa-clock me-1"></i> Duration (hrs)</label>
+                        <input class="form-control" value="@duration.ToString("F2")" readonly />
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold"><i class="fa fa-users me-1"></i> Guest Count</label>
+                        <input class="form-control" value="@Model.GuestCount" readonly />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold"><i class="fa fa-clock me-1"></i> Created At</label>
+                        <input class="form-control" value="@Model.CreatedAt.ToString("g")" readonly />
+                    </div>
+                </div>
+
+                <!-- Venue -->
+                <div class="mb-4">
+                    <h5 class="fw-bold text-primary"><i class="fa fa-building me-2"></i> Venue</h5>
+                    <div class="card border-0 shadow-sm rounded-4">
+                        <div class="row g-0">
+                            @if (!string.IsNullOrEmpty(Model.Venue.ImageUrl))
+                            {
+                                <div class="col-md-4">
+                                    <img src="@Url.Content(Model.Venue.ImageUrl)" class="img-fluid rounded-start" />
+                                </div>
+                            }
+                            <div class="col-md-8">
+                                <div class="card-body">
+                                    <h5>@Model.Venue.Name</h5>
+                                    <p class="text-muted">@Model.Venue.Description</p>
+                                    <p><i class="fa fa-users me-1"></i> Capacity: <strong>@Model.Venue.Capacity</strong></p>
+                                    <p>
+                                        <i class="fa fa-coins me-1"></i> Rate: <strong>
+                                            R @Model.Venue.BaseRatePerHour × @duration.ToString("F2") hr =
+                                            R @((Model.Venue.BaseRatePerHour * (decimal)duration))
+                                        </strong>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Activities -->
+                if (Model.SelectedActivities.Any())
+                {
+                    <h5 class="fw-bold text-primary"><i class="fa fa-music me-2"></i> Activities</h5>
+                    <div class="row mb-4">
+                        @foreach (var a in Model.SelectedActivities)
+                        {
+                            var activityTotal = a.PricePerGuest * Model.GuestCount;
+                            <div class="col-md-6 mb-3">
+                                <div class="card shadow-sm h-100 border-0 rounded-4">
+                                    @if (!string.IsNullOrEmpty(a.IconImageUrl))
+                                    {
+                                        <img src="@Url.Content(a.IconImageUrl)" class="card-img-top" style="max-height:120px; object-fit:cover;" />
+                                    }
+                                    <div class="card-body">
+                                        <h6>@a.Name</h6>
+                                        <p>
+                                            <strong>R @a.PricePerGuest</strong> × @Model.GuestCount guests =
+                                            <span class="text-success fw-bold">R @activityTotal</span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+
+                <!-- Food -->
+                if (Model.SelectedFoods.Any())
+                {
+                    <h5 class="fw-bold text-primary"><i class="fa fa-utensils me-2"></i> Food</h5>
+                    <div class="row mb-4">
+                        @foreach (var f in Model.SelectedFoods)
+                        {
+                            var foodTotal = f.Price * Model.GuestCount;
+                            <div class="col-md-6 mb-3">
+                                <div class="card shadow-sm h-100 border-0 rounded-4">
+                                    @if (!string.IsNullOrEmpty(f.picture))
+                                    {
+                                        <img src="~/assets/images/@f.picture" class="card-img-top" style="max-height:120px; object-fit:cover;" />
+                                    }
+                                    <div class="card-body">
+                                        <h6>@f.Name</h6>
+                                        <p class="text-muted">@f.Description</p>
+                                        <p>
+                                            <strong>@f.Price.ToString("R 0.00")</strong> × @Model.GuestCount =
+                                            <span class="text-success fw-bold">R @foodTotal</span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+
+                <!-- Equipment -->
+                if (Model.SelectedEquipments.Any())
+                {
+                    <h5 class="fw-bold text-primary"><i class="fa fa-cogs me-2"></i> Equipment</h5>
+                    <div class="row mb-4">
+                        @foreach (var e in Model.SelectedEquipments)
+                        {
+                            var equipmentTotal = e.PricePerHour * (decimal)duration;
+                            <div class="col-md-6 mb-3">
+                                <div class="card shadow-sm h-100 border-0 rounded-4">
+                                    @if (!string.IsNullOrEmpty(e.ImageUrl))
+                                    {
+                                        <img src="@Url.Content(e.ImageUrl)" class="card-img-top" style="max-height:120px; object-fit:cover;" />
+                                    }
+                                    <div class="card-body">
+                                        <h6>@e.Name</h6>
+                                        <p class="text-muted">@e.Description</p>
+                                        <p>
+                                            <strong>R @e.PricePerHour</strong> × @duration.ToString("F2") hr =
+                                            <span class="text-success fw-bold">R @equipmentTotal</span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+
+                <!-- Admin Notes -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold"><i class="fa fa-comments me-1"></i> Admin Notes</label>
+                    @Html.TextAreaFor(m => m.AdminNotes, new { @class = "form-control", rows = 4, placeholder = "Optional comments or clarifications..." })
+                </div>
+
+                <!-- Final Total -->
+                <div class="alert alert-success shadow-sm mb-4">
+                    <h5 class="mb-0 fw-bold"><i class="fa fa-calculator me-2"></i> Final Estimated Total:</h5>
+                    <h3 class="mt-2 text-success fw-bold">💰 R @Model.EstimatedTotal</h3>
+                </div>
+
+                if (Model.IsFinalized)
+                {
+                    <div class="alert alert-info">
+                        <i class="fa fa-lock me-1"></i> This quote has already been finalized.
+                    </div>
+                }
+                else
+                {
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-success px-4 me-2 shadow-sm" onclick="setActionType('Approve')">
+                            ✅ Approve Quote
+                        </button>
+                        <button type="submit" class="btn btn-danger px-4 shadow-sm" onclick="setActionType('Decline')">
+                            ❌ Decline Quote
+                        </button>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>
+
+<script>
+    function setActionType(action) {
+        document.getElementById("ActionType").value = action;
+    }
+</script>

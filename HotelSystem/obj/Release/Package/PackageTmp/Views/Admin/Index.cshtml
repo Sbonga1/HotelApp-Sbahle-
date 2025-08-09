@@ -1,0 +1,45 @@
+﻿@using HotelSystem.Models
+@model IEnumerable<Discount>
+
+@{
+    ViewBag.Title = "Discounts";
+}
+
+<h2>Discounts</h2>
+
+<p>
+    @Html.ActionLink("Create New Discount", "CreateDiscount", "Admin", null, new { @class = "btn btn-primary" })
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Discount Percentage</th>
+            <th>Minimum Spend</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Is Active</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@Html.DisplayFor(modelItem => item.Name)</td>
+                <td>@Html.DisplayFor(modelItem => item.Description)</td>
+                <td>@Html.DisplayFor(modelItem => item.DiscountPercentage)</td>
+                <td>@Html.DisplayFor(modelItem => item.MinimumSpend)</td>
+                <td>@Html.DisplayFor(modelItem => item.StartDate)</td>
+                <td>@Html.DisplayFor(modelItem => item.EndDate)</td>
+                <td>@Html.DisplayFor(modelItem => item.IsActive)</td>
+                <td>
+                    @Html.ActionLink("Edit", "EditDiscount", new { id = item.Id }, new { @class = "btn btn-sm btn-warning" }) |
+                    @Html.ActionLink("Delete", "DeleteDiscount", new { id = item.Id }, new { @class = "btn btn-sm btn-danger" })
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

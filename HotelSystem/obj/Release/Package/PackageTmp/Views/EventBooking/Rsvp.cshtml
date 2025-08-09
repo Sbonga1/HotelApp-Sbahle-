@@ -1,0 +1,53 @@
+﻿@model HotelSystem.ViewModels.RSVPViewModel
+@{
+    ViewBag.Title = "RSVP Confirmation";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+<div style="padding-top:5%"></div>
+
+<div class="container py-5">
+    <div class="card shadow-lg border-0 rounded-4">
+        <div class="card-header bg-info text-white">
+            <h3 class="mb-0"><i class="fa fa-envelope-open-text me-2"></i> RSVP: @Model.EventTitle</h3>
+        </div>
+
+        <div class="card-body px-4 py-4">
+            <div class="mb-3">
+                <p><i class="fa fa-calendar-alt me-1"></i> <strong>Date:</strong> @Model.EventDate.ToString("f")</p>
+                <p><i class="fa fa-map-marker-alt me-1"></i> <strong>Venue:</strong> @Model.VenueName</p>
+                <p class="text-muted">@Model.Description</p>
+            </div>
+
+            @using (Html.BeginForm("RSVP", "EventBooking", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(m => m.RSVPToken)
+                @Html.HiddenFor(m => m.Email)
+
+                <div class="mb-4">
+                    <label class="form-label fw-bold d-block"><i class="fa fa-question-circle me-1"></i> Will you attend?</label>
+                    <div class="form-check form-check-inline">
+                        @Html.RadioButtonFor(m => m.Response, "Yes", new { @class = "form-check-input", id = "rsvpYes" })
+                        <label class="form-check-label" for="rsvpYes">Yes</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        @Html.RadioButtonFor(m => m.Response, "No", new { @class = "form-check-input", id = "rsvpNo" })
+                        <label class="form-check-label" for="rsvpNo">No</label>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-bold" for="rsvpMessage"><i class="fa fa-comment me-1"></i> Optional Message</label>
+                    @Html.TextAreaFor(m => m.Message, new { @class = "form-control", rows = 3, placeholder = "Leave a message (e.g. dietary preferences, questions, etc.)", id = "rsvpMessage" })
+                </div>
+
+                <div class="text-end">
+                    <button type="submit" class="btn btn-primary px-4">
+                        <i class="fa fa-paper-plane me-1"></i> Submit RSVP
+                    </button>
+                </div>
+            }
+        </div>
+    </div>
+</div>

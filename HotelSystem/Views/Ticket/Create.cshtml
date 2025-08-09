@@ -1,0 +1,61 @@
+﻿@model HotelSystem.Models.TicketType
+@{
+    ViewBag.Title = "Create Ticket Type";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    int remainingCapacity = ViewBag.RemainingCapacity ?? 0;
+    var eventTitle = ViewBag.Event?.EventQuote?.Title ?? "Event";
+}
+<div style="padding-top:5%"></div>
+
+<div class="container py-5">
+    <div class="card shadow-lg border-0 rounded-4">
+        <div class="card-header bg-danger text-white">
+            <h3 class="mb-0"><i class="fa fa-ticket-alt me-2"></i> Create Ticket Type for <span class="text-warning">@eventTitle</span></h3>
+        </div>
+
+        <div class="card-body">
+            @using (Html.BeginForm())
+            {
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(m => m.EventBookingId)
+
+                <div class="mb-3">
+                    <label class="form-label">Ticket Name</label>
+                    @Html.TextBoxFor(m => m.Name, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(m => m.Name, "", new { @class = "text-danger" })
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Price</label>
+                    @Html.TextBoxFor(m => m.Price, new { @class = "form-control", type = "number", step = "0.01" })
+                    @Html.ValidationMessageFor(m => m.Price, "", new { @class = "text-danger" })
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">
+                        Quantity
+                        <span class="text-muted">(Remaining: @remainingCapacity)</span>
+                    </label>
+                    @Html.TextBoxFor(m => m.Quantity, new
+                    {
+                        @class = "form-control",
+                        type = "number",
+                        min = 1,
+                        max = remainingCapacity
+                    })
+                    @Html.ValidationMessageFor(m => m.Quantity, "", new { @class = "text-danger" })
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Description</label>
+                    @Html.TextAreaFor(m => m.Description, new { @class = "form-control", rows = 4 })
+                </div>
+
+                <button type="submit" class="btn btn-success px-4">
+                    <i class="fa fa-plus me-1"></i> Create Ticket Type
+                </button>
+            }
+        </div>
+    </div>
+</div>

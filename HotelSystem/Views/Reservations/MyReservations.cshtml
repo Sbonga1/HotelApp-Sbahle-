@@ -1,0 +1,106 @@
+﻿@model IEnumerable<HotelSystem.Models.Reservation>
+
+@{
+    ViewBag.Title = "My Reservations";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<section id="my-reservations" class="py-5 bg-light">
+    <div class="container" style="padding-top:5%">
+        <h2 class="fw-bold mb-4 text-center">My Reservations</h2>
+
+        <div class="row gy-4">
+            @foreach (var item in Model)
+            {
+                var expectedCost = item.Apartment.rating * int.Parse(item.Nights);
+                var finalCost = item.Cost - item.PromoAmt;
+                if (finalCost < 0)
+                {
+                    finalCost = 0;
+                }
+
+                <div class="col-md-12">
+                    <div class="card shadow-lg rounded-4 p-3 animate-fade-in">
+                        <div class="row g-0 align-items-center">
+                            <!-- Image -->
+                            <div class="col-md-3">
+                                <img src="~/assets/images/@item.Apartment.image"
+                                     class="img-fluid rounded-start w-100"
+                                     style="object-fit: cover; height: 100%; max-height: 220px;" />
+                            </div>
+
+                            <!-- Reservation Details -->
+                            <div class="col-md-5 px-4">
+                                <h5 class="mb-2"><strong>Reservation #</strong> @item.Id</h5>
+                                <p><strong>Room:</strong> @item.RoomNumber</p>
+                                <p><strong>Name:</strong> @item.CustomerName @item.CustomerSurname</p>
+                                <p><strong>Email:</strong> @item.Email</p>
+                                <p><strong>Check-In:</strong> @item.From.ToShortDateString()</p>
+                                <p><strong>Arrival Time:</strong> @item.Time.ToShortTimeString()</p>
+                            </div>
+
+                            <!-- Cost Info -->
+                            <div class="col-md-2">
+                                <p><strong>Status:</strong> @item.Status</p>
+                                <p><strong>Nights:</strong> @item.Nights</p>
+                                <p><strong>Room Type:</strong> @item.RoomType</p>
+                                <p><strong>Rate:</strong> @item.Apartment.rating per night</p>
+                                <p><strong>Total Cost:</strong> R @item.Cost.ToString("F2")</p>
+
+                                @if (item.PromoAmt > 0)
+                                {
+                                    <p class="text-success fw-bold">
+                                        🎁 Promo Discount: -R @item.PromoAmt.ToString("F2")
+                                    </p>
+                                }
+
+                                @if (item.WalletAmt > 0)
+                                {
+                                    <p class="text-primary fw-bold">
+                                        🧾 Paid from Wallet: R @item.WalletAmt.ToString("F2")
+                                    </p>
+                                }
+
+                                @if (item.AmtPaid > 0)
+                                {
+                                    <p class="text-dark">
+                                        💳 Paid via Card: R @item.AmtPaid.ToString("F2")
+                                    </p>
+                                }
+
+                                @if (item.Status == "Received, Pending Payment")
+                                {
+                                    <p class="fw-bold text-danger">
+                                        💰 Amount Due: R @finalCost.ToString("F2")
+                                    </p>
+                                }
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="col-md-2 text-center">
+                                @if (item.Status == "Received, Pending Payment")
+                                {
+                                    <button type="button" class="btn btn-success mb-2 w-100"
+                                            onclick="location.href='@Url.Action("OnceOff", "Payment", new { totalPrice = finalCost, email = item.Email, payment = "Reservation" })'">
+                                        <i class="fa fa-lock"></i> Pay Now
+                                    </button>
+                                }
+
+                                @if (item.Status == "Fee Settled")
+                                {
+                                    <a href="@Url.Action("Create", "Refunds")" class="btn btn-danger w-100">
+                                        Request Refund
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

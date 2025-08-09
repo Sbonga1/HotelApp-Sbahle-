@@ -1,0 +1,80 @@
+﻿@model HotelSystem.Models.EventTable
+@{
+    ViewBag.Title = "Add New Table";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+
+<style>
+    .form-card {
+        max-width: 700px;
+        margin: 0 auto;
+        background: #fff;
+        padding: 30px;
+        border-radius: 20px;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.07);
+    }
+
+    .form-card-header {
+        background: linear-gradient(45deg, #007bff, #00c6ff);
+        padding: 20px;
+        border-radius: 15px 15px 0 0;
+        color: white;
+        text-align: center;
+    }
+
+    .form-control,
+    .form-select {
+        border-radius: 10px;
+    }
+
+    .preview-img {
+        max-height: 160px;
+        margin-top: 10px;
+        border-radius: 12px;
+        object-fit: cover;
+        display: block;
+    }
+</style>
+
+<div style="padding-top:6%"></div>
+<div class="container">
+    <div class="form-card">
+        <div class="form-card-header">
+            <h3><i class="fa fa-chair me-2"></i> Add New Table</h3>
+        </div>
+
+        @using (Html.BeginForm("Create", "EventTables", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(m => m.VenueId)
+
+            <div class="mb-3 mt-4">
+                @Html.LabelFor(m => m.TableName, new { @class = "form-label fw-bold" })
+                @Html.TextBoxFor(m => m.TableName, new { @class = "form-control", placeholder = "e.g. Table A" })
+                @Html.ValidationMessageFor(m => m.TableName, "", new { @class = "text-danger" })
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold">Table Image</label>
+                <input type="file" name="ImageUpload" class="form-control" accept="image/*" onchange="previewImage(event)" />
+                <img id="preview" class="preview-img" style="display:none;" />
+            </div>
+
+            <div class="text-end">
+                <button type="submit" class="btn btn-success px-4">
+                    <i class="fa fa-save me-1"></i> Save Table
+                </button>
+            </div>
+        }
+    </div>
+</div>
+
+<script>
+    function previewImage(event) {
+        const preview = document.getElementById('preview');
+        preview.src = URL.createObjectURL(event.target.files[0]);
+        preview.style.display = "block";
+    }
+</script>

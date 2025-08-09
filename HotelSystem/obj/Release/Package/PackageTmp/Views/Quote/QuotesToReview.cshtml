@@ -1,0 +1,105 @@
+﻿@model IEnumerable<HotelSystem.Models.EventQuote>
+@{
+    ViewBag.Title = "Quotes To Review";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var currentFilter = ViewBag.StatusFilter as string ?? "All";
+}
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+<div style="padding-top:5%"></div>
+
+<div class="container py-4">
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
+            <h4 class="mb-0"><i class="fa fa-clipboard-list me-2"></i> Quotes Awaiting Review</h4>
+            <span class="badge bg-light text-dark">@Model.Count() quote(s)</span>
+        </div>
+
+        <div class="card-body px-4 py-4">
+
+            <!-- Filter Form -->
+            <form method="get" class="mb-4 row g-3 align-items-center">
+                <div class="col-auto">
+                    <label for="statusFilter" class="form-label fw-bold mb-0">Filter by Status:</label>
+                </div>
+                <div class="col-md-3">
+                    <select name="statusFilter" id="statusFilter" class="form-select" onchange="this.form.submit()">
+                        <option value="All" @(currentFilter == "All" ? "selected" : "")>All</option>
+                        <option value="Pending" @(currentFilter == "Pending" ? "selected" : "")>Pending</option>
+                        <option value="Approved" @(currentFilter == "Approved" ? "selected" : "")>Approved</option>
+                        <option value="Declined" @(currentFilter == "Declined" ? "selected" : "")>Declined</option>
+                    </select>
+                </div>
+            </form>
+
+            @if (!Model.Any())
+            {
+                <div class="alert alert-info text-center shadow-sm">
+                    <i class="fa fa-info-circle me-2"></i> No quotes match the selected status.
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover align-middle text-center shadow-sm rounded-3">
+                        <thead class="table-light">
+                            <tr>
+                                <th>#</th>
+                                <th>Title</th>
+                                <th>Client</th>
+                                <th>Type</th>
+                                <th>Venue</th>
+                                <th>Guests</th>
+                                <th>Submitted</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var quote in Model)
+                            {
+                                <tr>
+                                    <td>@quote.EventQuoteId</td>
+                                    <td class="text-start">@quote.Title</td>
+                                    <td>@quote.UserEmail</td>
+                                    <td><span class="badge bg-secondary">@quote.EventType</span></td>
+                                    <td>@(quote.Venue?.Name)</td>
+                                    <td>@quote.GuestCount</td>
+                                    <td>@quote.CreatedAt.ToString("g")</td>
+                                    <td>
+                                        <span class="badge bg-@GetBadgeColor(quote.Status)">
+                                            @quote.Status
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="@Url.Action("ReviewQuote", "Quote", new { id = quote.EventQuoteId })" class="btn btn-sm btn-outline-primary">
+                                            <i class="fa fa-eye me-1"></i> Review
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@functions {
+    string GetBadgeColor(string status)
+    {
+        switch (status)
+        {
+            case "Approved":
+                return "success";
+            case "Pending":
+                return "warning text-dark";
+            case "Declined":
+                return "danger";
+            default:
+                return "secondary";
+        }
+    }
+}
+

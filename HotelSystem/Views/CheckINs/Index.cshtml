@@ -1,0 +1,43 @@
+﻿@model IEnumerable<HotelSystem.Models.CheckIN>
+
+@{
+    ViewBag.Title = "Check-In Records";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-5" style="padding-top:5%">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold">Customer Check-Ins</h2>
+        <a class="btn btn-primary" href="@Url.Action("Create")">+ New Check-In</a>
+    </div>
+
+    <div class="row gy-4">
+        @foreach (var item in Model)
+        {
+            <div class="col-md-6">
+                <div class="card shadow-sm p-3 rounded-4 animate-fade-in">
+                    <div class="card-body">
+                        <h5 class="card-title">@item.Name @item.Surname</h5>
+                        <p class="mb-1"><strong>Reservation #:</strong> @item.ID</p>
+                        <p class="mb-1"><strong>Date:</strong> @DateTime.Parse(item.CheckinDate).ToShortDateString()</p>
+                        <p class="mb-1"><strong>Time:</strong> @item.CheckinTime</p>
+                    </div>
+                    <div class="card-footer bg-white border-top-0 d-flex justify-content-between">
+                       
+                        <a class="btn btn-sm btn-outline-success" href="@Url.Content($"~/CheckIn_{item.ID}_{item.Name}.pdf")">
+                            <i class="fa fa-download"></i> PDF
+                        </a>
+                        <div>
+                            <a class="btn btn-sm btn-outline-info me-2" href="@Url.Action("Details", new { id = item.ID })">Details</a>
+                            <a class="btn btn-sm btn-outline-danger" href="@Url.Action("Delete", new { id = item.ID })">Delete</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

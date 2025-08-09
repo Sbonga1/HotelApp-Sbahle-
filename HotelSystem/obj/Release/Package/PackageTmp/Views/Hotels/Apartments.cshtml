@@ -1,0 +1,439 @@
+﻿
+@model IEnumerable<HotelSystem.Models.Apartment>
+@using HotelSystem.Models;
+
+@{ ViewBag.Title = "Apartments";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    //string hotelID = ViewData["hotelID"].ToString();
+    string CustomerUsername = HttpContext.Current.User.Identity.Name;
+    //Hotel hotel = (Hotel)ViewData["hotel"];
+}
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css?family=Cabin:600,700|Lato:300,400" rel="stylesheet">
+    <script src="https://use.fontawesome.com/086e19824e.js"></script>
+    <title>@ViewBag.Title</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+    <style>
+        body {
+            font-size: 13px;
+        }
+
+        .myLinks {
+            color: white;
+            font-size: 18px;
+        }
+
+        .img-responsive {
+            width: 100%;
+            height: 250px;
+        }
+
+        .span {
+            font-size: 15px;
+        }
+
+        #hotel-apartments {
+            padding: 20px 0;
+            padding-bottom: 60px;
+        }
+
+            #hotel-apartments .reservation-box {
+                width: 100%;
+                height: 250px;
+                border: 1px solid #ededed;
+                background-color: white;
+                border-radius: 3px;
+                margin-bottom: 30px;
+            }
+
+                #hotel-apartments .reservation-box .img-cont {
+                    height: inherit;
+                    overflow: hidden;
+                    padding: 5px;
+                }
+
+                    #hotel-apartments .reservation-box .img-cont img {
+                        height: 100%;
+                        margin: 0 auto;
+                        border-top-left-radius: 3px;
+                        border-bottom-left-radius: 3px;
+                    }
+
+                #hotel-apartments .reservation-box .main-details {
+                    padding-top: 15px;
+                    padding-left: 25px;
+                }
+
+                    #hotel-apartments .reservation-box .main-details .item {
+                        margin-bottom: 15px;
+                    }
+
+                        #hotel-apartments .reservation-box .main-details .item h5 {
+                            margin-bottom: 5px;
+                            font-weight: 600;
+                            color: #27ae60;
+                        }
+
+                        #hotel-apartments .reservation-box .main-details .item p {
+                            color: #888;
+                        }
+
+                #hotel-apartments .reservation-box .action-btns {
+                    padding-top: 35px;
+                    border-left: 1px solid #ededed;
+                    height: inherit;
+                    background-color: #ededed;
+                }
+
+                    #hotel-apartments .reservation-box .action-btns a {
+                        margin-bottom: 20px;
+                        width: 100%;
+                        padding-top: 10px;
+                        padding-bottom: 10px;
+                        text-transform: uppercase;
+                    }
+
+
+        .cover .left-info {
+            color: white;
+        }
+
+
+            .cover .left-info h2 {
+                margin: 0;
+                padding: 0;
+                margin-bottom: 15px;
+            }
+
+            .cover .left-info .address, .cover .left-info .city {
+                color: #2ecc71;
+            }
+
+        .cover .no-stars p {
+            color: white;
+        }
+
+        .cover .no-stars i {
+            color: #f1c40f;
+        }
+
+        .cover-hotel-info {
+            margin-top: 170px;
+        }
+
+        .apartment-box {
+            width: 100%;
+            height: 400px;
+            border: 1px solid #ededed;
+            border-radius: 2px;
+            overflow: hidden;
+            position: relative;
+            margin-bottom: 40px;
+        }
+
+            .apartment-box .img-cont {
+                height: 220px;
+                overflow: hidden;
+            }
+
+                .apartment-box .img-cont img {
+                    min-width: 100%;
+                }
+
+            .apartment-box .box-body {
+                padding-left: 20px;
+                padding-right: 20px;
+            }
+
+            .apartment-box .bottom-link a {
+                width: 100%;
+                padding-top: 15px;
+                padding-bottom: 15px;
+                color: white;
+                font-weight: 400;
+                font-size: 18px;
+                text-align: center;
+                font-family: 'Cabin',sans-serif;
+                letter-spacing: 1px;
+                background-color: #222;
+                display: block;
+                position: absolute;
+                bottom: 0;
+                transition-duration: .3s;
+                -webkit-transition-duration: .3s;
+                -moz-transition-duration: .3s;
+                -o-transition-duration: .3s;
+            }
+
+                .apartment-box .bottom-link a:hover, .apartment-box .bottom-link a:focus {
+                    text-decoration: none;
+                    background-color: #555;
+                    transition-duration: .3s;
+                    -webkit-transition-duration: .3s;
+                    -moz-transition-duration: .3s;
+                    -o-transition-duration: .3s;
+                }
+
+            .apartment-box .bottom-link.book a {
+                background-color: #2ecc71;
+            }
+
+            .apartment-box .bottom-link.not-book a {
+                background-color: #e74c3c;
+            }
+
+            .apartment-box .name {
+                color: #222;
+                font-weight: 400;
+                font-weight: 'Lato',sans-serif;
+            }
+
+            .apartment-box .floor, .apartment-box .rooms {
+                color: black;
+            }
+
+            .apartment-box .description {
+                color: black;
+                margin-top: 10px;
+            }
+
+            .apartment-box .price-cont {
+                background-color: #2ecc71;
+                color: white;
+                font-weight: 600;
+                font-size: 16px;
+                font-family: 'Cabin', sans-serif;
+                padding: 5px 7px;
+                display: inline-block;
+                position: absolute;
+                top: 10px;
+                left: 10px;
+                border-radius: 3px;
+            }
+
+
+                .apartment-box .price-cont span {
+                    font-weight: 600;
+                    font-size: 16px;
+                    font-family: 'Cabin', sans-serif;
+                }
+
+            .apartment-box .opton-btns {
+                position: absolute;
+                right: 10px;
+                top: 10px;
+            }
+
+
+                .apartment-box .opton-btns a {
+                    height: 40px;
+                    width: 40px;
+                    display: block;
+                    border-radius: 4px;
+                    margin-bottom: 15px;
+                    font-size: 22px;
+                    color: white;
+                    text-align: center;
+                    padding-top: 4px;
+                    transition-duration: .2s;
+                    -webkit-transition-duration: .2s;
+                    -moz-transition-duration: .2s;
+                    -o-transition-duration: .2s;
+                }
+
+                    .apartment-box .opton-btns a:hover, .apartment-box .opton-btns a:focus {
+                        opacity: 0.8;
+                        text-decoration: none;
+                        transition-duration: .2s;
+                        -webkit-transition-duration: .2s;
+                        -moz-transition-duration: .2s;
+                        -o-transition-duration: .2s;
+                    }
+
+                .apartment-box .opton-btns .edit {
+                    background-color: #3498db;
+                }
+
+                .apartment-box .opton-btns .delete {
+                    background-color: #e74c3c;
+                }
+
+        .add-apartment {
+            border: 1px solid #e74c3c;
+            color: #e74c3c;
+            font-family: 'Cabin', sans-serif;
+            font-weight: 400;
+            padding-top: 10px;
+            padding-bottom: 10px;
+            font-size: 17px;
+            letter-spacing: 1px;
+            margin-top: 30px;
+            display: block;
+            text-transform: uppercase;
+            width: 180px;
+            text-align: center;
+            transition-duration: .3s;
+            -webkit-transition-duration: .3s;
+            -moz-transition-duration: .3s;
+            -o-transition-duration: .3s;
+        }
+
+            .add-apartment:hover, .add-apartment:focus {
+                text-decoration: none;
+                background-color: #e74c3c;
+                color: white;
+                transition-duration: .3s;
+                -webkit-transition-duration: .3s;
+                -moz-transition-duration: .3s;
+                -o-transition-duration: .3s;
+            }
+
+        .des {
+            font-size: 15px;
+        }
+    </style>
+
+</head>
+<body>
+    <header class="cover">
+    </header>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                @if (User.IsInRole("Admin"))
+                {
+                    <p>
+                        @Html.ActionLink(
+                        "Add apartment",                                                  // linkText
+                        "Create",                                    // actionName
+                        "Apartments",                                                   // controllerName
+                        new
+                             {                                                     // routeValues
+                                                                       //hotelID = hotelID
+                         },
+                         new { @class = "add-apartment" }                                                     //htmlAttributes
+                                                             )
+                    </p>
+                }
+            </div>
+        </div>
+    </div>
+
+
+
+    <section id="hotel-apartments">
+        <div class="container">
+
+            <div class="row">
+
+                <div class="big-title text-center">
+                    <h1>ROOMS IN THIS HOTEL</h1>
+                    <div class="line"></div>
+                </div>
+
+            </div>
+
+
+
+            <div class="row">
+
+                @foreach (var item in Model)
+                {
+
+                    <div class="col-md-6">
+                        <div class="apartment-box">
+
+                            <p class="price-cont">
+                                R<span class="price">@Html.DisplayFor(modelItem => item.rating)</span>/night
+                            </p>
+
+                            <div class="img-cont">
+                                <img src="~/assets/images/@item.image" class="img-responsive" alt="">
+                            </div>
+
+                            <div class="box-body">
+
+                                <div class="pull-right">
+                                    <p class="rooms">
+                                        <span class="span"><b>@Html.DisplayFor(modelItem => item.Room)</b></span>
+                                    </p>
+                                </div>
+
+                                <div class="">
+                                    <p class="floor">
+                                        <span class="span"><b>Guest:</b> <span class="">@Html.DisplayFor(modelItem => item.Capacity)</span></span>
+                                    </p>
+                                </div>
+
+                                <div class="clearfix"></div>
+
+                                <div class="">
+                                    <p class="des">@Html.DisplayFor(modelItem => item.description)</p>
+                                </div>
+                            </div>
+
+
+
+                            @if (!User.IsInRole("Admin"))
+                            {
+                                <div class="bottom-link book">
+                                    @Html.ActionLink("BOOK NOW", "Create", "Reservations", new { ApartmentId = item.ID, CustomerUsername = CustomerUsername }, null)
+                                </div>
+                            }
+
+
+                            @*else
+                                {
+                                   <div class="bottom-link not-book">
+                                     <a href="#">ALREADY BOOKED</a>
+                                   </div>
+                                }*@
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </section>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

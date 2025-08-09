@@ -1,0 +1,487 @@
+﻿@model HotelSystem.ViewModels.RequestQuoteViewModel
+@{
+    ViewBag.Title = "Request Quote";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet" />
+<style>
+    .step-section {
+        display: none;
+    }
+
+        .step-section.active {
+            display: block;
+        }
+
+    .preview-img {
+        max-height: 150px;
+        object-fit: cover;
+        border-radius: 10px;
+        margin-bottom: 10px;
+    }
+</style>
+<div style="padding-top:5%"></div>
+@if (TempData["CustomError"] != null)
+{
+    <div class="modal fade" id="customErrorModal" tabindex="-1" aria-labelledby="customErrorModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 shadow-lg border-danger border-3 animate__animated animate__fadeInDown">
+                <div class="modal-header bg-danger text-white rounded-top-4">
+                    <h5 class="modal-title fw-bold" id="customErrorModalLabel">
+                        <i class="fa fa-exclamation-triangle me-2"></i> Booking Conflict Detected
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" onclick="closeCustomModal()" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-dark" style="line-height: 1.7;">
+                    <p class="text-muted fst-italic mb-3">Please review the suggested alternative below:</p>
+                    @Html.Raw(TempData["CustomError"])
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger px-4" onclick="closeCustomModal()">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let customModal;
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const modalEl = document.getElementById('customErrorModal');
+            customModal = new bootstrap.Modal(modalEl);
+            customModal.show();
+        });
+
+        function closeCustomModal() {
+            if (customModal) {
+                customModal.hide();
+            }
+        }
+    </script>
+
+
+}
+
+
+<div class="container py-5">
+    <div class="row">
+        <!-- FORM AREA -->
+        <div class="col-lg-8">
+            <div class="card shadow border-0 rounded-4">
+                <div class="card-header bg-primary text-white">
+                    <h3><i class="fa fa-file-invoice me-2"></i> Request Quote</h3>
+                </div>
+                <div class="card-body px-4 py-4">
+                    @using (Html.BeginForm("Request", "Quote", FormMethod.Post))
+                    {
+                        @Html.AntiForgeryToken()
+
+                        <!-- ✅ Event Type -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Event Type</label><br />
+                            <div class="form-check form-check-inline">
+                                @Html.RadioButtonFor(m => m.EventType, "Private", new { @class = "form-check-input", id = "eventPrivate" })
+                                <label class="form-check-label" for="eventPrivate">Private</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                @Html.RadioButtonFor(m => m.EventType, "Public", new { @class = "form-check-input", id = "eventPublic" })
+                                <label class="form-check-label" for="eventPublic">Public</label>
+                            </div>
+                            @Html.ValidationMessageFor(m => m.EventType, "", new { @class = "text-danger" })
+                        </div>
+
+                        <!-- ✅ Step 1: Venue -->
+                        <div class="step-section active" id="step1">
+                            <h5 class="fw-bold mb-3">Step 1: Select Venue & Event Details</h5>
+                            <div class="row mb-4">
+                                @foreach (var venue in Model.VenueDetails)
+                                {
+                                    <div class="col-md-6 mb-4">
+                                        <div class="card h-100 border-0 shadow-sm rounded-4">
+                                            @if (!string.IsNullOrEmpty(venue.ImageUrl))
+                                            {
+                                                <img src="@Url.Content(venue.ImageUrl)" class="card-img-top preview-img" />
+                                            }
+                                            <div class="card-body">
+                                                <h5 class="card-title fw-bold">@venue.Name</h5>
+                                                <p class="text-muted">@venue.Description</p>
+                                                <p><i class="fa fa-users me-1"></i> Capacity: <strong>@venue.Capacity</strong></p>
+                                                <p><i class="fa fa-clock me-1"></i> Rate: <strong>R @venue.BaseRatePerHour</strong>/hr</p>
+                                                <div class="form-check mt-2">
+                                                    @Html.RadioButtonFor(m => m.VenueId, venue.VenueId, new { @class = "form-check-input", id = "venue" + venue.VenueId })
+                                                    <label class="form-check-label" for="venue@venue.VenueId">Select</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+
+                            <!-- Event Fields -->
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    @Html.LabelFor(m => m.Title, new { @class = "form-label fw-bold" })
+                                    @Html.TextBoxFor(m => m.Title, new { @class = "form-control" })
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    @Html.LabelFor(m => m.Description, new { @class = "form-label fw-bold" })
+                                    @Html.TextBoxFor(m => m.Description, new { @class = "form-control" })
+                                </div>
+                                @{
+                                    var minDateTime = DateTime.Now.ToString("yyyy-MM-ddTHH:mm");
+                                }
+
+                                <div class="col-md-4 mb-3">
+                                    @Html.LabelFor(m => m.EventStartDateTime, new { @class = "form-label fw-bold" })
+                                    @Html.TextBoxFor(m => m.EventStartDateTime, "{0:yyyy-MM-ddTHH:mm}", new
+                                    {
+                                        @class = "form-control",
+                                        type = "datetime-local",
+                                        id = "startDate",
+                                        min = minDateTime
+                                    })
+                                </div>
+
+                                <div class="col-md-4 mb-3">
+                                    @Html.LabelFor(m => m.EventEndDateTime, new { @class = "form-label fw-bold" })
+                                    @Html.TextBoxFor(m => m.EventEndDateTime, "{0:yyyy-MM-ddTHH:mm}", new
+                                    {
+                                        @class = "form-control",
+                                        type = "datetime-local",
+                                        id = "endDate",
+                                        min = minDateTime
+                                    })
+                                </div>
+
+
+                                <div class="col-md-4 mb-3">
+                                    @Html.LabelFor(m => m.GuestCount, new { @class = "form-label fw-bold" })
+                                    @Html.TextBoxFor(m => m.GuestCount, new { @class = "form-control", type = "number", min = 1 })
+                                </div>
+                            </div>
+
+                            <div class="text-end">
+                                <button type="button" onclick="nextStep(2)" class="btn btn-primary px-4">Next</button>
+                            </div>
+                        </div>
+
+                        <!-- Step 2: Activities -->
+                        <div class="step-section" id="step2">
+                            <h5 class="fw-bold mb-3">Step 2: Choose Activities</h5>
+                            <div class="row">
+                                @foreach (var a in Model.Activities)
+                                {
+                                    <div class="col-md-6 mb-4">
+                                        <div class="card h-100 border-0 shadow-sm rounded-4">
+                                            @if (!string.IsNullOrEmpty(a.IconImageUrl))
+                                            {
+                                                <img src="@Url.Content(a.IconImageUrl)" class="card-img-top preview-img" />
+                                            }
+                                            <div class="card-body">
+                                                <h5 class="card-title fw-bold">@a.Name</h5>
+                                                <p><strong>R @a.PricePerGuest</strong> per guest</p>
+
+                                                <div class="form-check">
+                                                    <input type="checkbox" name="SelectedActivityIds" value="@a.ActivityId" class="form-check-input" id="a@a.ActivityId" />
+                                                    <label for="a@a.ActivityId" class="form-check-label">Add</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                            <div class="text-end">
+                                <button type="button" onclick="prevStep(1)" class="btn btn-secondary">Back</button>
+                                <button type="button" onclick="nextStep(3)" class="btn btn-primary">Next</button>
+                            </div>
+                        </div>
+
+                        <!-- Step 3: Food -->
+                        <div class="step-section" id="step3">
+                            <h5 class="fw-bold mb-3">Step 3: Choose Food</h5>
+                            <div class="row">
+                                @foreach (var f in Model.Foods)
+                                {
+                                    <div class="col-md-6 mb-4">
+                                        <div class="card h-100 shadow-sm border-0 rounded-4">
+                                            @if (!string.IsNullOrEmpty(f.picture))
+                                            {
+                                                <img src="~/assets/images/@f.picture" class="card-img-top preview-img" />
+                                            }
+                                            <div class="card-body">
+                                                <h5 class="card-title fw-bold">@f.Name</h5>
+                                                <p class="text-muted">@f.Description</p>
+                                                <p><strong>R @f.Price</strong> per guest</p>
+                                                <div class="form-check">
+                                                    <input type="checkbox" name="SelectedFoodIds" value="@f.Id" class="form-check-input" id="f@f.Id" />
+                                                    <label for="f@f.Id" class="form-check-label">Add</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                            <div class="text-end">
+                                <button type="button" onclick="prevStep(2)" class="btn btn-secondary">Back</button>
+                                <button type="button" onclick="nextStep(4)" class="btn btn-primary">Next</button>
+                            </div>
+                        </div>
+
+                        <!-- Step 4: Equipment -->
+                        <div class="step-section" id="step4">
+                            <h5 class="fw-bold mb-3">Step 4: Choose Equipment</h5>
+                            <div class="row">
+                                @foreach (var e in Model.Equipments)
+                                {
+                                    <div class="col-md-6 mb-4">
+                                        <div class="card h-100 shadow-sm border-0 rounded-4">
+                                            @if (!string.IsNullOrEmpty(e.ImageUrl))
+                                            {
+                                                <img src="@Url.Content(e.ImageUrl)" class="card-img-top preview-img" />
+                                            }
+                                            <div class="card-body">
+                                                <h5 class="card-title fw-bold">@e.Name</h5>
+                                                <p class="text-muted">@e.Description</p>
+                                                <p><strong>R @e.PricePerHour</strong> per hour</p>
+                                                <div class="form-check">
+                                                    <input type="checkbox" name="SelectedEquipmentIds" value="@e.EquipmentId" class="form-check-input" id="e@e.EquipmentId" />
+                                                    <label for="e@e.EquipmentId" class="form-check-label">Add</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                            <div class="text-end">
+                                <button type="button" onclick="prevStep(3)" class="btn btn-secondary">Back</button>
+                                <button type="submit" class="btn btn-success px-4">
+                                    <i class="fa fa-calculator me-1"></i> Generate Quote
+                                </button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- LIVE SUMMARY -->
+        <div class="col-lg-4 mt-4 mt-lg-0">
+            <div class="card shadow-sm border-0 rounded-4 sticky-top" style="top: 90px;">
+                <div class="card-header bg-light fw-bold">
+                    <i class="fa fa-chart-line me-2"></i> Live Quote Summary
+                </div>
+                <div class="card-body" id="quoteSummary">
+                    <p><strong>Guests:</strong> <span id="guestCountSummary">0</span> people</p>
+                    <p><strong>Duration:</strong> <span id="durationHours">0</span> hr</p>
+
+                    <hr />
+                    <h6 class="fw-bold text-primary"><i class="fa fa-building me-1"></i> Venue</h6>
+                    <p>Rate × Hours: <span id="venueSummary">R0.00</span></p>
+
+                    <h6 class="fw-bold text-primary mt-3"><i class="fa fa-music me-1"></i> Activities</h6>
+                    <p>Total (&#64; <span id="activityRatePerGuest">R0.00</span>/guest): <span id="activitiesSummary">R0.00</span></p>
+
+                    <h6 class="fw-bold text-primary mt-3"><i class="fa fa-utensils me-1"></i> Food</h6>
+                    <p>Total (&#64; <span id="foodRatePerGuest">R0.00</span>/guest): <span id="foodSummary">R0.00</span></p>
+
+                    <h6 class="fw-bold text-primary mt-3"><i class="fa fa-cogs me-1"></i> Equipment</h6>
+                    <p>Total (&#64; hourly rate): <span id="equipmentSummary">R0.00</span></p>
+
+                    <hr />
+                    <h5 class="fw-bold text-success"><i class="fa fa-calculator me-1"></i> Estimated Total: <span id="totalEstimate">R0.00</span></h5>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let venueRates = {};
+    let activityRates = {};
+    let foodRates = {};
+    let equipmentRates = {};
+    let venueCapacities = {};
+
+    document.addEventListener("DOMContentLoaded", () => {
+        @foreach (var v in Model.VenueDetails)
+        {
+            <text>venueCapacities[@v.VenueId] = @v.Capacity;</text>
+        }
+        @foreach (var v in Model.VenueDetails)
+        {
+            <text>venueRates[@v.VenueId] = @v.BaseRatePerHour;</text>
+        }
+        @foreach (var a in Model.Activities)
+        {
+            <text>activityRates[@a.ActivityId] = @a.PricePerGuest;</text>
+        }
+        @foreach (var f in Model.Foods)
+        {
+            <text>foodRates[@f.Id] = @f.Price;</text>
+        }
+        @foreach (var e in Model.Equipments)
+        {
+            <text>equipmentRates[@e.EquipmentId] = @e.PricePerHour;</text>
+        }
+
+        document.querySelectorAll("input, select").forEach(el => {
+            el.addEventListener("change", updateQuoteSummary);
+        });
+
+        updateQuoteSummary();
+    });
+
+    function updateQuoteSummary() {
+        const guests = parseInt(document.querySelector("[name='GuestCount']")?.value || 0);
+        const start = document.querySelector("[name='EventStartDateTime']")?.value;
+        const end = document.querySelector("[name='EventEndDateTime']")?.value;
+
+        let hours = 0;
+        if (start && end) {
+            const startTime = new Date(start);
+            const endTime = new Date(end);
+            const diffMs = endTime - startTime;
+            hours = diffMs > 0 ? diffMs / (1000 * 60 * 60) : 0;
+        }
+
+        document.getElementById("guestCountSummary").innerText = guests;
+        document.getElementById("durationHours").innerText = hours.toFixed(2);
+
+        let venueCost = 0;
+        const venueId = document.querySelector("[name='VenueId']:checked")?.value;
+        if (venueId && venueRates[venueId]) {
+            venueCost = venueRates[venueId] * hours;
+            document.getElementById("venueSummary").innerText = `R${venueCost.toFixed(2)}`;
+        } else {
+            document.getElementById("venueSummary").innerText = "-";
+        }
+
+        let activityCost = 0;
+        let activityRate = 0;
+        const selectedActivities = document.querySelectorAll("input[name='SelectedActivityIds']:checked");
+        selectedActivities.forEach(a => {
+            const id = a.value;
+            activityRate += activityRates[id] || 0;
+            activityCost += (activityRates[id] || 0) * guests;
+        });
+        document.getElementById("activitiesSummary").innerText = `R${activityCost.toFixed(2)}`;
+        document.getElementById("activityRatePerGuest").innerText = `R${activityRate.toFixed(2)}`;
+
+        let foodCost = 0;
+        let foodRate = 0;
+        document.querySelectorAll("input[name='SelectedFoodIds']:checked").forEach(f => {
+            const id = f.value;
+            foodRate += foodRates[id] || 0;
+            foodCost += (foodRates[id] || 0) * guests;
+        });
+        document.getElementById("foodSummary").innerText = `R${foodCost.toFixed(2)}`;
+        document.getElementById("foodRatePerGuest").innerText = `R${foodRate.toFixed(2)}`;
+
+        let equipmentCost = 0;
+        document.querySelectorAll("input[name='SelectedEquipmentIds']:checked").forEach(e => {
+            const id = e.value;
+            equipmentCost += (equipmentRates[id] || 0) * hours;
+        });
+        document.getElementById("equipmentSummary").innerText = `R${equipmentCost.toFixed(2)}`;
+
+        const total = venueCost + activityCost + foodCost + equipmentCost;
+        document.getElementById("totalEstimate").innerText = `R${total.toFixed(2)}`;
+    }
+
+    function nextStep(step) {
+        document.querySelectorAll(".step-section").forEach(s => s.classList.remove("active"));
+        document.getElementById("step" + step).classList.add("active");
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function prevStep(step) {
+        nextStep(step);
+    }
+</script>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const startInput = document.getElementById("startDate");
+        const endInput = document.getElementById("endDate");
+
+        function getNowISOString() {
+            const now = new Date();
+            const pad = (n) => n.toString().padStart(2, '0');
+            return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+        }
+
+        function enforceLiveMinDate() {
+            const nowIso = getNowISOString();
+            startInput.min = nowIso;
+            endInput.min = nowIso;
+
+            if (startInput.value && startInput.value < nowIso) {
+                alert("Start time cannot be in the past.");
+                startInput.value = "";
+            }
+
+            if (endInput.value && endInput.value < nowIso) {
+                alert("End time cannot be in the past.");
+                endInput.value = "";
+            }
+        }
+
+        function enforceEndAfterStart() {
+            if (startInput.value && endInput.value && endInput.value < startInput.value) {
+                alert("End time cannot be before start time.");
+                endInput.value = startInput.value;
+            }
+        }
+
+        // Initial validation
+        enforceLiveMinDate();
+
+        // Watch changes
+        startInput.addEventListener("change", () => {
+            enforceLiveMinDate();
+            endInput.min = startInput.value;
+            enforceEndAfterStart();
+        });
+
+        endInput.addEventListener("change", () => {
+            enforceLiveMinDate();
+            enforceEndAfterStart();
+        });
+    });
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const guestInput = document.querySelector("[name='GuestCount']");
+        const venueInputs = document.querySelectorAll("input[name='VenueId']");
+
+        function getSelectedVenueCapacity() {
+            const selectedVenue = document.querySelector("input[name='VenueId']:checked");
+            if (selectedVenue && venueCapacities[selectedVenue.value]) {
+                return parseInt(venueCapacities[selectedVenue.value]);
+            }
+            return null;
+        }
+
+        function validateGuestCount() {
+            const selectedCapacity = getSelectedVenueCapacity();
+            const guests = parseInt(guestInput.value || 0);
+            if (selectedCapacity && guests > selectedCapacity) {
+                alert(`Guest count exceeds the selected venue's capacity of ${selectedCapacity}.`);
+                guestInput.value = selectedCapacity;
+            }
+        }
+
+        // Trigger validation when guest count or venue changes
+        guestInput.addEventListener("input", validateGuestCount);
+        venueInputs.forEach(input => input.addEventListener("change", validateGuestCount));
+    });
+</script>
+
+

@@ -1,0 +1,88 @@
+﻿@model IEnumerable<HotelSystem.Models.Reservation>
+
+@{
+    ViewBag.Title = "All Reservations";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<section id="my-reservations" class="py-5 bg-light">
+    <div class="container" style="padding-top:5%">
+        <h2 class="fw-bold text-center mb-4">All Reservations</h2>
+
+        <div class="row gy-4">
+            @foreach (var item in Model)
+            {
+                var expectedCost = item.Apartment.rating * int.Parse(item.Nights);
+                var finalCost = item.Cost - item.PromoAmt;
+                if (finalCost < 0)
+                {
+                    finalCost = 0;
+                }
+
+                <div class="col-md-12">
+                    <div class="card shadow-sm rounded-4 p-3 animate-fade-in">
+                        <div class="row g-0 align-items-center">
+                            <!-- Room Image -->
+                            <div class="col-md-3">
+                                <img src="~/assets/images/@item.Apartment.image"
+                                     class="img-fluid rounded-3"
+                                     style="height: 200px; object-fit: cover;" />
+                            </div>
+
+                            <!-- Guest + Booking Info -->
+                            <div class="col-md-4 px-4">
+                                <h5><strong>Reservation #</strong> @item.Id</h5>
+                                <p><strong>Room:</strong> @item.RoomNumber</p>
+                                <p><strong>Name:</strong> @item.CustomerName @item.CustomerSurname</p>
+                                <p><strong>Email:</strong> @item.Email</p>
+                                <p><strong>Status:</strong> <span class="badge bg-info text-dark">@item.Status</span></p>
+                            </div>
+
+                            <!-- Dates + Payment Info -->
+                            <div class="col-md-4">
+                                <p><strong>Check-In:</strong> @item.From.ToShortDateString()</p>
+                                <p><strong>Arrival Time:</strong> @item.Time.ToShortTimeString()</p>
+                                <p><strong>Nights:</strong> @item.Nights</p>
+                                <p><strong>Accommodation:</strong> @item.RoomType</p>
+                                <p><strong>Rate:</strong> R @item.Apartment.rating.ToString("F2") per night</p>
+                                <p><strong>Total Cost:</strong> <span class="text-success">R @item.Cost.ToString("F2")</span></p>
+
+                                @if (item.PromoAmt > 0)
+                                {
+                                    <p class="text-success fw-bold mb-0">
+                                        🎁 Promo Discount: -R @item.PromoAmt.ToString("F2")
+                                    </p>
+                                }
+
+                                @if (item.WalletAmt > 0)
+                                {
+                                    <p class="text-primary fw-bold mb-0">
+                                        🧾 Paid from Wallet: R @item.WalletAmt.ToString("F2")
+                                    </p>
+                                }
+
+                                @if (item.AmtPaid > 0)
+                                {
+                                    <p class="text-dark mb-0">
+                                        💳 Paid via Card: R @item.AmtPaid.ToString("F2")
+                                    </p>
+                                }
+
+                                @if (item.Status == "Received, Pending Payment")
+                                {
+                                    <p class="text-danger fw-bold mt-2">
+                                        💰 Amount Due: R @(finalCost.ToString("F2"))
+                                    </p>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

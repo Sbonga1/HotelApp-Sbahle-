@@ -1,0 +1,106 @@
+﻿@{
+	ViewBag.Title = "Contact";
+	Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+<div class="row">
+
+	<div class="col-md-3 col-sm-6">
+			<div class="info-box">
+				<span class="info-box-icon bg-aqua"><i class="fa fa-user"></i></span>
+
+				<div class="info-box-content">
+					<span class="info-box-text">Total Registered <br />Guest(s)</span>
+					<span class="info-box-number">0<small></small></span>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-3 col-sm-6">
+			<div class="info-box">
+				<span class="info-box-icon bg-red"><i class="fa fa-hotel"></i></span>
+
+				<div class="info-box-content">
+					<span class="info-box-text">Total Available <br />Room(s)</span>
+					<span class="info-box-number">0<small></small></span>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-3 col-sm-6">
+			<div class="info-box">
+				<span class="info-box-icon bg-green"><i class="fa fa-building"></i></span>
+
+				<div class="info-box-content">
+					<span class="info-box-text">Available Hotel <br />Location(s)</span>
+					<span class="info-box-number">0<small></small></span>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-3 col-sm-6">
+				<div class="info-box">
+					<span class="info-box-icon bg-yellow"><i class="fa fa-tv"></i></span>
+
+					<div class="info-box-content">
+						<span class="info-box-text">Total Asset(s)</span>
+						<span class="info-box-number">0<small></small></span>
+					</div>
+				</div>
+			</div>
+	<div class="col-lg-3 col-xs-6">
+			<div class="info-box">
+				<div class="inner">
+					<h3>0</h3>
+					<p>Total Block(s)</p>
+				</div>
+				<div class="icon">
+					<i class="fa fa-building-o"></i>
+				</div>
+
+			</div>
+		</div>
+	<!-- ./col -->
+	<div class="col-lg-3 col-xs-6">
+
+			<div class="small-box bg-green">
+				<div class="inner">
+					<h3>0</h3>
+					<p>Total Room(s)</p>
+				</div>
+				<div class="icon">
+					<i class="fa fa-hotel"></i>
+				</div>
+
+			</div>
+		</div>
+	<!-- ./col -->
+	<div class="col-lg-3 col-xs-6">
+
+			<div class="small-box bg-yellow">
+				<div class="inner">
+					<h3>R 0.00 </h3>
+					<p>
+						<button type="button" class="btn btn-warning" onclick="location.href='@Url.Action("Create", "Donees")'">Select Design</button>
+					</p>
+				</div>
+				<div class="icon">
+					<img src="~/AdminLTE-2.3.11/AdminLTE-2.3.11/dist/img/user.png" height="100" width="100" style="margin-top:-25px;margin-left:50px" class="user-image" alt="User Image">
+				</div>
+
+			</div>
+		</div>
+	<!-- ./col -->
+	<div class="col-lg-3 col-xs-6">
+
+			<div class="small-box bg-red">
+				<div class="inner">
+					<h3>R 0.00 </h3>
+					<p>
+						<button type="button" class="btn btn-danger" onclick="location.href='@Url.Action("Create", "Donees")'">Select Design</button>
+					</p>
+				</div>
+				<div class="icon">
+					@*<i class="fa fa-tv"></i>*@
+					<img src="~/AdminLTE-2.3.11/AdminLTE-2.3.11/dist/img/user.png" height="100" width="100" style="margin-top:-25px;margin-left:50px" class="user-image" alt="User Image">
+				</div>
+
+			</div>
+		</div>
+</div>

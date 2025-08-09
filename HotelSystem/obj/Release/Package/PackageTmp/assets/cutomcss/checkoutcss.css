@@ -1,0 +1,110 @@
+﻿
+body {
+    background: #f5f5f5;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.cartcontainer {
+    background: #ffffff;
+    border-radius: 10px;
+    padding: 30px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    animation: fadeInUp 0.8s ease-in-out;
+}
+
+.main-bar h5 {
+    font-weight: bold;
+    color: #333;
+}
+
+.card {
+    transition: transform 0.2s ease-in-out;
+}
+
+    .card:hover {
+        transform: scale(1.015);
+    }
+
+    .card img {
+        border-radius: 8px;
+    }
+
+.btn-outline-danger {
+    border-radius: 20px;
+}
+
+.discount-section,
+.total {
+    background-color: #f1f1f1;
+    padding: 15px 20px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.promo-code-section {
+    background-color: #e7f3ff;
+    padding: 15px;
+    border-left: 4px solid #007bff;
+    border-radius: 6px;
+    margin-bottom: 20px;
+}
+
+.checkout button,
+.checkout a.btn {
+    border-radius: 25px;
+    padding: 12px 25px;
+    font-size: 16px;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
+}
+
+    .checkout button:hover {
+        background-color: #28a745 !important;
+        box-shadow: 0 6px 15px rgba(40, 167, 69, 0.25);
+    }
+
+#promoCodeTextBox {
+    border-radius: 25px;
+    padding: 10px 15px;
+}
+
+.form-group select,
+.form-control {
+    border-radius: 12px;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Label style for delivery option */
+label.font-weight-bold {
+    font-size: 18px;
+    color: #333;
+}
+
+.price1 {
+    font-size: 1.1rem;
+    color: #e53935;
+    font-weight: 600;
+}
+
+.total1 {
+    font-size: 1.3rem;
+    color: #000;
+}
+
+.total2 {
+    font-size: 1.5rem;
+    color: #28a745;
+}
+
+

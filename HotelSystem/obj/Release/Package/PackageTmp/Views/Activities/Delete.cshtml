@@ -1,0 +1,19 @@
+﻿@model HotelSystem.Models.Activity
+@{
+    ViewBag.Title = "Delete Activity";
+}
+<div style="padding-top:5%"></div>
+
+<h2 class="text-danger">Delete Activity</h2>
+<div class="alert alert-warning">
+    Are you sure you want to delete the activity <strong>@Model.Name</strong>?
+</div>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(m => m.ActivityId)
+
+    <button type="submit" class="btn btn-danger">Yes, Delete</button>
+    <a href="@Url.Action("Index")" class="btn btn-secondary">Cancel</a>
+}

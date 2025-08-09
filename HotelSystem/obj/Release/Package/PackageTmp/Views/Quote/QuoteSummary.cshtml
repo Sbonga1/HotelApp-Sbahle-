@@ -1,0 +1,181 @@
+﻿@model HotelSystem.ViewModels.RequestQuoteViewModel
+@{
+    ViewBag.Title = "Quote Summary";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    [title]:hover::after {
+        content: attr(title);
+        background: #000;
+        color: #fff;
+        padding: 4px 8px;
+        border-radius: 4px;
+        position: absolute;
+        z-index: 999;
+        white-space: nowrap;
+        transform: translateX(-50%);
+    }
+</style>
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+<div style="padding-top: 5%"></div>
+
+<div class="container py-5">
+    <div class="card shadow-lg border-0 rounded-4">
+        <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+            <h3 class="mb-0"><i class="fa fa-clipboard-check me-2"></i> Quote Summary</h3>
+            <span class="badge bg-white text-dark px-3 py-2 rounded-pill">@Model.EventType.ToString().ToUpper() Event</span>
+        </div>
+
+        <div class="card-body px-4 py-4">
+
+            <!-- STATUS -->
+            <div class="mb-4 border-start border-3 ps-3 border-success">
+                <p class="mb-1">
+                    <strong>Status:</strong>
+                    <span class="badge bg-@(Model.QuoteStatus == "Approved" ? "success" : Model.QuoteStatus == "Pending" ? "warning text-dark" : "danger")">
+                        @Model.QuoteStatus
+                    </span>
+                </p>
+                @if (Model.IsFinalized)
+                {
+                    <p><strong>Finalized At:</strong> @Model.EventEndDateTime.ToString("f")</p>
+                }
+            </div>
+
+            <!-- VENUE -->
+            @{
+                var venue = Model.VenueDetails.FirstOrDefault(v => v.VenueId == Model.VenueId);
+            }
+            @if (venue != null)
+            {
+                <h5 class="fw-bold text-primary mt-3"><i class="fa fa-building me-2"></i>Venue Details</h5>
+                <div class="card shadow-sm border-0 rounded-4 mb-4">
+                    <div class="row g-0">
+                        @if (!string.IsNullOrEmpty(venue.ImageUrl))
+                        {
+                            <div class="col-md-4">
+                                <img src="@Url.Content(venue.ImageUrl)" class="img-fluid rounded-start" style="object-fit: cover; height: 100%;" />
+                            </div>
+                        }
+                        <div class="col-md-8">
+                            <div class="card-body">
+                                <h5 class="card-title">@venue.Name</h5>
+                                <p>@venue.Description</p>
+                                <dl class="row">
+                                    <dt class="col-sm-4">👥 Capacity</dt>
+                                    <dd class="col-sm-8">@venue.Capacity</dd>
+                                    <dt class="col-sm-4">💵 Rate</dt>
+                                    <dd class="col-sm-8">R @venue.BaseRatePerHour × @Model.DurationHours hr</dd>
+                                    <dt class="col-sm-4">🕒 Start</dt>
+                                    <dd class="col-sm-8">@Model.EventStartDateTime.ToString("f")</dd>
+                                    <dt class="col-sm-4">🕒 End</dt>
+                                    <dd class="col-sm-8">@Model.EventEndDateTime.ToString("f")</dd>
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <!-- ACTIVITIES -->
+            @if (Model.SelectedActivityIds?.Any() == true)
+            {
+                <h5 class="fw-bold text-primary mb-3"><i class="fa fa-music me-2"></i>Activities</h5>
+                <div class="row">
+                    @foreach (var a in Model.Activities.Where(a => Model.SelectedActivityIds.Contains(a.ActivityId)))
+                    {
+                        <div class="col-md-6 mb-3">
+                            <div class="card h-100 shadow-sm border-0 rounded-4">
+                                @if (!string.IsNullOrEmpty(a.IconImageUrl))
+                                {
+                                    <img src="@Url.Content(a.IconImageUrl)" class="card-img-top" style="max-height: 120px; object-fit: cover;" />
+                                }
+                                <div class="card-body">
+                                    <h6>@a.Name</h6>
+                                    <p>💵 <strong>R @a.PricePerGuest</strong> × @Model.GuestCount guests</p>
+                                    <p>Total: <strong>R @(a.PricePerGuest * Model.GuestCount)</strong></p>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+
+            <!-- FOOD -->
+            @if (Model.SelectedFoodIds?.Any() == true)
+            {
+                <h5 class="fw-bold text-primary mb-3 mt-4"><i class="fa fa-utensils me-2"></i>Food Selection</h5>
+                <div class="row">
+                    @foreach (var f in Model.Foods.Where(f => Model.SelectedFoodIds.Contains(f.Id)))
+                    {
+                        <div class="col-md-6 mb-3">
+                            <div class="card h-100 border-0 shadow-sm rounded-4">
+                                @if (!string.IsNullOrEmpty(f.picture))
+                                {
+                                    <img src="~/assets/images/@f.picture" class="card-img-top" style="max-height: 120px; object-fit: cover;" />
+                                }
+                                <div class="card-body">
+                                    <h6 class="card-title">@f.Name</h6>
+                                    <p class="text-muted">@f.Description</p>
+                                    <p>💵 <strong>R @f.Price</strong> × @Model.GuestCount guests</p>
+                                    <p>Total: <strong>R @(f.Price * Model.GuestCount)</strong></p>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+
+            <!-- EQUIPMENT -->
+            @if (Model.SelectedEquipmentIds?.Any() == true)
+            {
+                <h5 class="fw-bold text-primary mb-3 mt-4"><i class="fa fa-cogs me-2"></i>Equipment</h5>
+                <div class="row">
+                    @foreach (var e in Model.Equipments.Where(e => Model.SelectedEquipmentIds.Contains(e.EquipmentId)))
+                    {
+                        <div class="col-md-6 mb-3">
+                            <div class="card h-100 border-0 shadow-sm rounded-4">
+                                @if (!string.IsNullOrEmpty(e.ImageUrl))
+                                {
+                                    <img src="@Url.Content(e.ImageUrl)" class="card-img-top" style="max-height: 120px; object-fit: cover;" />
+                                }
+                                <div class="card-body">
+                                    <h6 class="card-title">@e.Name</h6>
+                                    <p class="text-muted">@e.Description</p>
+                                    <p>💵 <strong>R @e.PricePerHour</strong> × @Model.DurationHours hr</p>
+                                    <p>Total: <strong>R @(e.PricePerHour * Model.DurationHours)</strong></p>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+
+            <!-- QUOTE SUMMARY -->
+            <div class="col-12 mt-4">
+                <div class="alert alert-light border shadow-sm p-4">
+                    <h5 class="fw-bold mb-3"><i class="fa fa-file-invoice-dollar me-2 text-primary"></i>Quote Summary</h5>
+                    <p><strong>Guests:</strong> @Model.GuestCount</p>
+                    <p><strong>Duration:</strong> @Model.DurationHours hours</p>
+                    <hr />
+                    <div class="mb-2">@Html.Raw(Model.SummaryHtml)</div>
+                    <h4 class="fw-bold text-success border-top pt-3 mt-3">Estimated Total: @Model.EstimatedTotal.ToString("R 0.00")</h4>
+                </div>
+            </div>
+
+            <!-- ACTIONS -->
+            <div class="text-end mt-4">
+                <a href="@Url.Action("MyQuotes", "Quote")" class="btn btn-outline-primary px-4 me-2">
+                    <i class="fa fa-list me-1"></i> My Quotes
+                </a>
+                @if (Model.IsFinalized && Model.QuoteStatus == "Approved" && ViewBag.Booking == null)
+                {
+                    <a href="@Url.Action("ConfirmBooking", "Quote", new { id = Model.EventQuoteId })" class="btn btn-success px-4">
+                        <i class="fa fa-check-circle me-1"></i> Confirm Booking
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,81 @@
+﻿@model HotelSystem.ViewModels.RateEventViewModel
+@{
+    ViewBag.Title = "Rate Event";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+<style>
+    .star-rating {
+        direction: rtl;
+        font-size: 2rem;
+        unicode-bidi: bidi-override;
+        display: inline-flex;
+    }
+
+        .star-rating input {
+            display: none;
+        }
+
+        .star-rating label {
+            color: #ccc;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+            .star-rating input:checked ~ label,
+            .star-rating label:hover,
+            .star-rating label:hover ~ label {
+                color: gold;
+            }
+</style>
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg rounded-4 border-0">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fa fa-star me-2"></i> Rate Event – @Model.EventTitle</h4>
+                </div>
+
+                <div class="card-body p-4">
+                    @using (Html.BeginForm())
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.HiddenFor(m => m.EventBookingId)
+                        @Html.HiddenFor(m => m.EventTitle)
+
+                        <div class="mb-4">
+                            @Html.LabelFor(m => m.TicketCode, new { @class = "form-label fw-bold" })
+                            @Html.TextBoxFor(m => m.TicketCode, new { @class = "form-control", placeholder = "Enter your 10-digit ticket code" })
+                            @Html.ValidationMessageFor(m => m.TicketCode, "", new { @class = "text-danger" })
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Your Rating</label><br />
+                            <div class="star-rating">
+                                @for (int i = 5; i >= 1; i--)
+                                {
+                                    <input type="radio" id="star@i" name="Rating" value="@i" @(Model.Rating == i ? "checked" : "") />
+                                    <label for="star@i" title="@i stars"><i class="fa fa-star"></i></label>
+                                }
+                            </div>
+                            @Html.ValidationMessageFor(m => m.Rating, "", new { @class = "text-danger d-block mt-2" })
+                        </div>
+
+                        <div class="mb-4">
+                            @Html.LabelFor(m => m.Comment, new { @class = "form-label fw-bold" })
+                            @Html.TextAreaFor(m => m.Comment, 5, 50, new { @class = "form-control", placeholder = "Optional comment about the event..." })
+                            @Html.ValidationMessageFor(m => m.Comment, "", new { @class = "text-danger" })
+                        </div>
+
+                        <button type="submit" class="btn btn-success px-4">
+                            <i class="fa fa-paper-plane me-1"></i> Submit Rating
+                        </button>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

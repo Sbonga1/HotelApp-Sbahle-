@@ -1,0 +1,55 @@
+﻿@model IEnumerable<HotelSystem.Models.Seat>
+@{
+    ViewBag.Title = "Table Seats";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var tableName = ViewBag.TableName;
+    var tableId = ViewBag.TableId;
+}
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+<div style="padding-top:5%"></div>
+<div class="container py-5">
+    <div class="card shadow-lg border-0 rounded-4">
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+            <h4 class="mb-0" style="color:white"><i class="fa fa-chair me-2"></i> Table: @tableName (ID: @tableId)</h4>
+            <div>
+              
+                    <a href="@Url.Action("Create", "Seats", new { tableId = tableId })" class="btn btn-sm btn-warning me-2">
+                        <i class="fa fa-plus me-1"></i> Add Seat
+                    </a>
+              
+               
+                    <a href="@Url.Action("Index", "EventTables", new {venueId =ViewBag.VenueId })" class="btn btn-sm btn-light">
+                        <i class="fa fa-arrow-left me-1"></i> Back to Tables
+                    </a>
+                
+
+            </div>
+        </div>
+
+        <div class="card-body">
+            @if (!Model.Any())
+            {
+                <div class="alert alert-info text-center">
+                    <i class="fa fa-info-circle me-1"></i> No seats have been created for this table yet.
+                </div>
+            }
+            else
+            {
+                <div class="row">
+                    @foreach (var seat in Model)
+                    {
+                        <div class="col-md-4 mb-4">
+                            <div class="card border-0 shadow-sm rounded-4 h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title fw-bold">Seat @seat.SeatNumber</h5>
+                                   
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>

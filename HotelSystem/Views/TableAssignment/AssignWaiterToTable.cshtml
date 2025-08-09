@@ -1,0 +1,57 @@
+﻿@model HotelSystem.ViewModels.TableWaiterAssignmentViewModel
+@{
+    ViewBag.Title = "Assign Waiters to Tables";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container py-5">
+    <h2 class="fw-bold mb-4"><i class="fa fa-user-tie me-2"></i> Assign Waiters to Tables</h2>
+
+    @using (Html.BeginForm("BulkAssignWaiters", "TableAssignment", FormMethod.Post))
+    {
+        @Html.HiddenFor(m => m.BookingId)
+
+        <div class="row">
+            @for (int i = 0; i < Model.Assignments.Count; i++)
+            {
+                var table = Model.Assignments[i];
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card shadow-sm border-0 rounded-4">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0"><i class="fa fa-chair me-2"></i> @table.TableName</h5>
+                        </div>
+                        <div class="card-body">
+                            <p><strong>Seats:</strong> @table.SeatCount</p>
+                            @if (!string.IsNullOrEmpty(table.AssignedWaiterEmail))
+                            {
+                                <p class="text-success"><i class="fa fa-user-check me-1"></i> Assigned: <strong>@table.AssignedWaiterEmail</strong></p>
+                            }
+                            else
+                            {
+                                <p class="text-danger"><i class="fa fa-exclamation-circle me-1"></i> No waiter assigned</p>
+                            }
+
+                            @Html.HiddenFor(m => m.Assignments[i].TableId)
+
+                            <div class="mb-2">
+                                @Html.DropDownListFor(m => m.Assignments[i].SelectedWaiterEmail, Model.WaiterOptions, "Select Waiter", new { @class = "form-select" })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="text-end mt-4">
+            <button type="submit" class="btn btn-success px-4">
+                <i class="fa fa-save me-1"></i> Assign Waiters
+            </button>
+        </div>
+    }
+
+    <div class="mt-4">
+        <a href="@Url.Action("Details", "EventBooking", new { id = Model.BookingId })" class="btn btn-secondary">
+            <i class="fa fa-arrow-left me-1"></i> Back to Booking
+        </a>
+    </div>
+</div>

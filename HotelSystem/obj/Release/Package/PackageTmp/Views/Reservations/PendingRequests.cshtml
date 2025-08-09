@@ -1,0 +1,142 @@
+﻿@model IEnumerable<HotelSystem.Models.Reservation>
+@{
+    ViewBag.Title = "PendingRequests";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css?family=Cabin:600,700|Lato:300,400" rel="stylesheet">
+    <script src="https://use.fontawesome.com/086e19824e.js"></script>
+    <title>@ViewBag.Title</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+    <style>
+        .room-name {
+            font-size: 18px;
+            color: blue;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <section id="my-reservations">
+        <div class="container">
+
+            <div class="row">
+
+                <div class="big-title text-center">
+                    <h1>Pending Reservations</h1>
+                    <div class="line"></div>
+                </div>
+
+            </div>
+
+            <div class="row">
+
+                @foreach (var item in Model)
+                {
+
+                    <div class="reservation-box">
+
+                        <div class="col-sm-4 img-cont">
+                            <img src="~/Content/img/1_night_july_marina_bay_sands__1656232282_9795b10c.jpg" />
+                        </div>
+
+                        <div class="col-sm-3 main-details">
+                            <div class="item">
+                                <h5><strong>Reservation Number:</strong></h5>
+                                <p>@Html.DisplayFor(modelItem => item.Id)</p>
+                            </div>
+                            <div class="item">
+                                <h5><strong>Room Number:</strong></h5>
+                                <p>@Html.DisplayFor(modelItem => item.RoomNumber)</p>
+                            </div>
+                            <div class="item">
+                                <h5><strong>Email:</strong></h5>
+                                <p>@Html.DisplayFor(modelItem => item.Email)</p>
+                            </div>
+
+                            <div class="item">
+                                <h5><strong>Names:</strong></h5>
+                                <p>@Html.DisplayFor(modelItem => item.CustomerName) @Html.DisplayFor(modelItem => item.CustomerSurname)</p>
+                            </div>
+
+                            @*<div class="item">
+                        <h5><strong>Last Name:</strong></h5>
+                        <p></p>
+                    </div>*@
+
+
+                            <div class="item">
+                                <h5><strong>Status:</strong></h5>
+                                <p>@Html.DisplayFor(modelItem => item.Status)</p>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-3 main-details">
+                            <div class="item">
+                                <h5><strong>From:</strong></h5>
+                                <p>@Html.DisplayFor(modelItem => item.From)</p>
+                            </div>
+
+                            <div class="item">
+                                <h5><strong>Nights:</strong></h5>
+                                <p>@Html.DisplayFor(modelItem => item.Nights)</p>
+                            </div>
+
+                            <div class="item">
+                                <h5><strong>Arrival:</strong></h5>
+                                <p>@Html.DisplayFor(modelItem => item.Time)</p>
+                            </div>
+
+                            <div class="item">
+                                <h5><strong>Room Type:</strong></h5>
+                                <p>@Html.DisplayFor(modelItem => item.RoomType)</p>
+                            </div>
+
+
+                            <div class="item">
+                                <h5><strong>Cost:</strong></h5>
+                                <p><span>R</span>@Html.DisplayFor(modelItem => item.Cost)</p>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-2 action-btns">
+                            @*<a href="@Url.Action("Paymentwithpaypal","Payment")" class="btn btn-success">Payment</a>*@
+                            @if (item.Status == "Received, Pending Payment")
+                            {
+                                <button type="button" class="btn btn-success" id="Reserv" onclick="location.href='@Url.Action(actionName: "OnceOff", controllerName: "Payment", routeValues: new { TotalPrice = item.Cost })'"><i class="fa fa-lock"></i> Pay Now</button>
+                            }
+
+                            @*@Html.ActionLink("Pay Now", "Fee", "Checkout", null, new { id = "OT", style = "color:white; font-size:16px; border: 1px solid green ;display: block; width: 160px; text-align: center;border-radius:5px;text-decoration:none; background-color:green" })*@
+                            <br /><br />
+                            @if (item.Status == "Fee Settled")
+                            {
+                                <a href="@Url.Action("Create", "Refunds")" class="btn btn-danger">Request Refund</a>
+                            }
+
+
+                            @*@Html.ActionLink("Request Refund", "Create", "Refunds")*@
+
+                        </div>
+
+                    </div>
+
+                    <div class="clearfix"></div>
+
+                }
+
+
+            </div>
+        </div>
+    </section>
+    @section Scripts {
+        @Scripts.Render("~/bundles/jqueryval")
+    }
+</body>
+</html>
+

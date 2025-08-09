@@ -1,0 +1,36 @@
+﻿@model IEnumerable<HotelSystem.Models.Complaint>
+
+@{
+    ViewBag.Title = "My Complaints";
+}
+
+<div class="container py-5">
+    <h2 class="mb-4 text-center fw-bold"><i class="fa fa-exclamation-circle"></i> My Complaints</h2>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info text-center">You have not submitted any complaints yet.</div>
+    }
+    else
+    {
+        foreach (var complaint in Model)
+        {
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-dark text-white">
+                    Complaint #@complaint.Id - Order #@complaint.CustomerOrderId
+                </div>
+                <div class="card-body">
+                    <p><strong>Submitted:</strong> @complaint.SubmittedAt.ToString("f")</p>
+                    <p><strong>Description:</strong> @complaint.Description</p>
+                    <h6>Items:</h6>
+                    <ul>
+                        @foreach (var item in complaint.ComplaintItems)
+                        {
+                            <li>@(item.OrderedProduct?.Product?.Name)</li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        }
+    }
+</div>

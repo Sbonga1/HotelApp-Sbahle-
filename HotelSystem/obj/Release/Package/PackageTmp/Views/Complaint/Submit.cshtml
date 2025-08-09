@@ -1,0 +1,76 @@
+﻿@model HotelSystem.ViewModels.SubmitComplaintViewModel
+
+@{
+    ViewBag.Title = "Submit Complaint";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var order = ViewBag.Order as HotelSystem.Models.CustomerOrder;
+    var orderedItems = Model.OrderedProducts;
+}
+
+<div class="container py-5">
+    <h2 class="mb-4 fw-bold text-center">
+        <i class="fa fa-exclamation-circle"></i> Submit a Complaint
+    </h2>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger text-center">@TempData["Error"]</div>
+    }
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success text-center">@TempData["Success"]</div>
+    }
+
+    @using (Html.BeginForm("Submit", "Complaint", FormMethod.Post, new { @class = "card shadow p-4" }))
+    {
+        @Html.AntiForgeryToken()
+        @Html.HiddenFor(m => m.CustomerOrderId)
+
+        <h5 class="mb-3">Order #: @(order?.Id)</h5>
+
+        <div class="mb-3">
+            <label class="form-label fw-bold">Select Products to Complain About</label>
+
+            @if (orderedItems != null && orderedItems.Any())
+            {
+                foreach (var item in orderedItems)
+                {
+                    bool isChecked = Model.SelectedOrderedProductIds != null && Model.SelectedOrderedProductIds.Contains(item.Id);
+
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input"
+                               name="SelectedOrderedProductIds"
+                               value="@item.Id"
+                               id="item_@item.Id"
+                               @(isChecked ? "checked" : "") />
+
+                        <label class="form-check-label" for="item_@item.Id">
+                            @(item.Product?.Name ?? "Unnamed Product") - Quantity: @item.Quantity
+                        </label>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="text-danger">No products found for this order.</div>
+            }
+
+            @Html.ValidationMessageFor(m => m.SelectedOrderedProductIds, "", new { @class = "text-danger mt-1" })
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label fw-bold">Complaint Description</label>
+            @Html.TextAreaFor(m => m.Description, new { @class = "form-control", rows = 4, placeholder = "Describe your issue here..." })
+            @Html.ValidationMessageFor(m => m.Description, "", new { @class = "text-danger" })
+        </div>
+
+        <div class="text-end">
+            <button type="submit" class="btn btn-danger">
+                <i class="fa fa-paper-plane"></i> Submit Complaint
+            </button>
+            <a href="@Url.Action("MyOrders", "OrderedProducts")" class="btn btn-secondary ms-2">Cancel</a>
+        </div>
+    }
+</div>

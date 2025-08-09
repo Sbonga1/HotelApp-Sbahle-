@@ -1,0 +1,45 @@
+﻿@model IEnumerable<HotelSystem.Models.Seat>
+@{
+    ViewBag.Title = "Select a Seat";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var email = ViewBag.Email as string;
+    var tableId = (int)ViewBag.TableId;
+    var tableName = ViewBag.TableName as string;
+    var venueId = ViewBag.VenueId;
+}
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+<div style="padding-top:5%"></div>
+<div class="container py-5">
+    <h2 class="fw-bold mb-4"><i class="fa fa-chair me-2"></i> Select a Seat - Table: @tableName</h2>
+
+    <div class="row">
+        @foreach (var seat in Model)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card shadow border-0 rounded-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Seat @seat.SeatNumber</h5>
+
+                        @using (Html.BeginForm("AssignSeat", "TableAssignment", FormMethod.Post))
+                        {
+                            @Html.AntiForgeryToken()
+                            @Html.Hidden("seatId", seat.SeatId)
+                            @Html.Hidden("email", email)
+
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fa fa-check-circle me-1"></i> Assign This Seat
+                            </button>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="mt-4">
+        <a href="@Url.Action("SelectTable", "TableAssignment", new { email = email, bookingId = venueId })" class="btn btn-secondary">
+            <i class="fa fa-arrow-left me-1"></i> Back to Tables
+        </a>
+    </div>
+</div>

@@ -1,0 +1,86 @@
+﻿@model HotelSystem.ViewModels.ConfirmBookingViewModel
+@{
+    ViewBag.Title = "Confirm Booking";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+<div style="padding-top:5%"></div>
+
+<div class="container py-5">
+    <div class="card shadow-lg border-0 rounded-4">
+        <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+            <h3 class="mb-0"><i class="fa fa-check-circle me-2"></i> Confirm Your Booking</h3>
+            <span class="badge bg-light text-dark px-3 py-2 rounded-pill">
+                @Model.EventType.ToString().ToUpper() Event
+            </span>
+        </div>
+
+        <div class="card-body px-4 py-4">
+            @using (Html.BeginForm("ConfirmBooking", "Quote", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(m => m.QuoteId)
+
+                <!-- Event Summary -->
+                <div class="mb-4">
+                    <h5 class="fw-bold mb-2"><i class="fa fa-calendar-alt me-1"></i> Event Details</h5>
+                    <p><strong>Start:</strong> @Model.EventStartDateTime.ToString("f")</p>
+                    <p><strong>End:</strong> @Model.EventEndDateTime.ToString("f")</p>
+                    <p><strong>Guests:</strong> @Model.GuestCount</p>
+                </div>
+
+                <!-- Quote Cost Breakdown -->
+                <div class="mb-4">
+                    <h5 class="fw-bold mb-2"><i class="fa fa-file-invoice-dollar me-1"></i> Quote Summary</h5>
+                    <div class="alert alert-info">
+                        @Html.Raw(Model.SummaryHtml)
+
+                        <hr />
+                        <h5 class="fw-bold text-primary">Total Estimated Cost: <span class="text-dark">R @Model.TotalCost</span></h5>
+                        <h5 class="fw-bold text-success">Amount Due Now (50%): <span class="text-dark">R @(Model.TotalCost * 0.5M)</span></h5>
+                        <p class="text-muted fst-italic mb-0">
+                            The remaining 50% will be payable after the event when actual costs are finalized.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Preferences -->
+                <div class="mb-4">
+                    <label class="form-label fw-bold"><i class="fa fa-clipboard-list me-1"></i> Additional Preferences (optional)</label>
+                    @Html.TextAreaFor(m => m.Preferences, new { @class = "form-control", rows = 4, placeholder = "E.g. dietary needs, seating arrangements, accessibility, etc." })
+                </div>
+
+                <!-- Terms and Conditions -->
+                <div class="mb-4">
+                    <h5 class="fw-bold"><i class="fa fa-file-contract me-1"></i> Terms and Conditions</h5>
+                    <div class="border p-3 rounded bg-light small" style="max-height: 200px; overflow-y: auto;">
+                        <p><strong>1.</strong> Booking is only confirmed upon a 50% deposit payment.</p>
+                        <p><strong>2.</strong> The remaining 50% must be paid after final costs are calculated.</p>
+                        <p><strong>3.</strong> Payment must be made within 3 days of confirmation.</p>
+                        <p><strong>4.</strong> Cancellations are not allowed.</p>
+                        <p><strong>5.</strong> You are liable for any damages to venue or equipment.</p>
+                        <p><strong>6.</strong> Please notify us of dietary needs or allergies.</p>
+                        <p><strong>7.</strong> Guests must follow all hotel safety rules.</p>
+                        <p><strong>8.</strong> The hotel is not responsible for lost items.</p>
+                    </div>
+                </div>
+
+                <!-- Terms Acceptance -->
+                <div class="form-check mb-4">
+                    @Html.CheckBoxFor(m => m.AcceptTerms, new { @class = "form-check-input", id = "acceptTerms" })
+                    <label class="form-check-label fw-bold" for="acceptTerms">
+                        I have read and agree to the terms and conditions above.
+                    </label>
+                    @Html.ValidationMessageFor(m => m.AcceptTerms, "", new { @class = "text-danger d-block mt-1" })
+                </div>
+
+                <!-- Submit -->
+                <div class="text-end">
+                    <button type="submit" class="btn btn-success px-4">
+                        <i class="fa fa-check-circle me-1"></i> Confirm Booking & Pay 50%
+                    </button>
+                </div>
+            }
+        </div>
+    </div>
+</div>

@@ -1,0 +1,117 @@
+﻿@model HotelSystem.Models.Discount
+
+@{
+    ViewBag.Title = "Create Discount";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+<link href="~/assets/cutomcss/DiscountModern.css" rel="stylesheet" />
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#itemTypeDropdown').on('change', function () {
+                const selectedType = $(this).val();
+                const products = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.Products));
+                const rooms = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.Rooms));
+                let items = [];
+
+                if (selectedType === "Product") items = products;
+                else if (selectedType === "Room") items = rooms;
+
+                const $dropdown = $('#itemIdsDropdown');
+                $dropdown.empty();
+
+                if (items.length > 0) {
+                    $.each(items, function (i, item) {
+                        $dropdown.append($('<option>', {
+                            value: item.Value,
+                            text: item.Text
+                        }));
+                    });
+                } else {
+                    $dropdown.append($('<option>').val("").text("No items available"));
+                }
+            });
+
+            // Trigger initial load
+            $('#itemTypeDropdown').trigger('change');
+        });
+    </script>
+}
+
+<section class="modern-discount-wrapper py-5">
+    <div class="container py-4">
+        <div class="card shadow-lg border-0 p-5 rounded-4">
+            <h2 class="text-center fw-bold mb-4 text-primary"><i class="fas fa-badge-percent"></i> Create Discount</h2>
+
+            @using (Html.BeginForm("CreateDiscount", "Admin", FormMethod.Post))
+            {
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        @Html.LabelFor(m => m.Name, "Discount Name", new { @class = "form-label" })
+                        @Html.TextBoxFor(m => m.Name, new { @class = "form-control", placeholder = "Summer Sale, VIP Deal..." })
+                        @Html.ValidationMessageFor(m => m.Name, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="col-md-6">
+                        @Html.LabelFor(m => m.Percentage)
+                        <div class="input-group">
+                            @Html.TextBoxFor(m => m.Percentage, new { @class = "form-control", type = "number", placeholder = "0 - 100", min = "0", max = "100" })
+                            <span class="input-group-text"><i class="fas fa-percent text-muted"></i></span>
+                        </div>
+                        @Html.ValidationMessageFor(m => m.Percentage, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="col-md-6">
+                        @Html.LabelFor(m => m.MinimumSpend)
+                        <div class="input-group">
+                            <span class="input-group-text">R</span>
+                            @Html.TextBoxFor(m => m.MinimumSpend, new { @class = "form-control", type = "number", step = "0.01", placeholder = "Minimum spend" })
+                        </div>
+                        @Html.ValidationMessageFor(m => m.MinimumSpend, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="col-md-6">
+                        @Html.LabelFor(m => m.ApplicableItemType, "Applies To")
+                        @Html.DropDownListFor(m => m.ApplicableItemType, (IEnumerable<SelectListItem>)ViewBag.ApplicableItemTypes, "Select Type", new { @class = "form-select", id = "itemTypeDropdown" })
+                        @Html.ValidationMessageFor(m => m.ApplicableItemType, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="col-md-12">
+                        @Html.LabelFor(m => m.ApplicableItemIds, "Targeted Items")
+                        @Html.ListBox("ApplicableItemIds", Enumerable.Empty<SelectListItem>(), new { @class = "form-select", id = "itemIdsDropdown", multiple = "multiple", size = "6" })
+                        @Html.ValidationMessageFor(m => m.ApplicableItemIds, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="col-md-6">
+                        @Html.LabelFor(m => m.StartDate)
+                        @Html.TextBoxFor(m => m.StartDate, new { @class = "form-control", type = "date" })
+                        @Html.ValidationMessageFor(m => m.StartDate, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="col-md-6">
+                        @Html.LabelFor(m => m.EndDate)
+                        @Html.TextBoxFor(m => m.EndDate, new { @class = "form-control", type = "date" })
+                        @Html.ValidationMessageFor(m => m.EndDate, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="col-md-12 form-check">
+                        @Html.CheckBoxFor(m => m.IsActive, new { @class = "form-check-input", id = "IsActiveCheck" })
+                        @Html.LabelFor(m => m.IsActive, new { @class = "form-check-label", @for = "IsActiveCheck" })
+                    </div>
+
+                    <div class="col-12 text-center">
+                        <button type="submit" class="btn btn-success btn-lg me-2">
+                            <i class="fa fa-save me-1"></i> Save Discount
+                        </button>
+                        <a href="@Url.Action("Index", "Admin")" class="btn btn-outline-secondary btn-lg">
+                            <i class="fa fa-times me-1"></i> Cancel
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>

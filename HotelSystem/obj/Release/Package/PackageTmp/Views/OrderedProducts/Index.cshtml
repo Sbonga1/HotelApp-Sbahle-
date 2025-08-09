@@ -1,0 +1,74 @@
+﻿@model IEnumerable<IGrouping<Tuple<DateTime, TimeSpan>, HotelSystem.Models.OrderedProduct>>
+
+@{
+    ViewBag.Title = "Orders";
+}
+
+<section class="py-5 bg-light" id="order-index">
+    <div class="container py-md-5 py-2">
+        <h2 class="fw-bold text-center mb-5"><i class="fa fa-list-alt"></i> Room Service Orders</h2>
+
+        @foreach (var group in Model)
+        {
+            var order = group.FirstOrDefault()?.CustomerOrder;
+            var orderId = group.FirstOrDefault()?.CustomerOrderId;
+
+            <div class="card shadow-sm border-0 rounded-4 mb-5">
+                <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                    <span><strong>Date:</strong> @group.Key.Item1.ToLongDateString()</span>
+                    <span><strong>Time:</strong> @group.Key.Item2.ToString(@"hh\:mm")</span>
+                </div>
+
+                <div class="card-body">
+                    @foreach (var item in group)
+                    {
+                        var itemTotal = item.Product.Price * item.Quantity;
+
+                        <div class="row align-items-center mb-3 border-bottom pb-2">
+                            <div class="col-md-1">
+                                <a href="#" onclick="showBiggerImage('@item.Product.picture')">
+                                    <img src="~/assets/images/@item.Product.picture" class="img-thumbnail" width="60" height="60" />
+                                </a>
+                            </div>
+                            <div class="col-md-3"><strong>@item.Product.Name</strong></div>
+                            <div class="col-md-2">Quantity: <span class="text-primary">@item.Quantity</span></div>
+                            <div class="col-md-2">Unit Price: <span class="text-primary">R @item.Product.Price.ToString("F2")</span></div>
+                            <div class="col-md-2">Subtotal: <span class="text-success">R @itemTotal.ToString("F2")</span></div>
+                        </div>
+                    }
+
+                    @if (order?.DeliveryType == "RoomService" && order.PreferredTime != null)
+                    {
+                        <div class="mt-3">
+                            <strong>Preferred Delivery Time:</strong>
+                            <span class="text-info ms-2">@(order.PreferredTime)</span>
+                        </div>
+                    }
+                </div>
+
+                <div class="card-footer bg-light d-flex flex-wrap justify-content-between align-items-center">
+                    <div><strong>Service Type:</strong> <span class="text-primary ms-1">@(order?.DeliveryType ?? "Room Service")</span></div>
+                    <div><strong>Basic Cost:</strong> <span class="text-primary ms-1">R @(order?.Amount.ToString("F2"))</span></div>
+                    <div><strong>Total Cost:</strong> <span class="text-success ms-1">R @((order?.Amount ?? 0).ToString("F2"))</span></div>
+
+                    <div class="mt-2 mt-md-0 d-flex gap-2">
+                        <a class="btn btn-outline-primary"
+                           href="@Url.Action("TrackOrder", "OrderedProducts", new { id = orderId })">
+                            <i class="fa fa-eye"></i> Track
+                        </a>
+                        @if (order?.Status == "Placed")
+                        {
+                            <a class="btn btn-outline-info"
+                               href="@Url.Action("AssignWaiter", "Admin", new { orderId = orderId })">
+                                <i class="fa fa-user-plus"></i> Assign Waiter
+                            </a>
+                        }
+
+                           
+                           
+                        </div>
+                </div>
+            </div>
+        }
+    </div>
+</section>

@@ -1,0 +1,140 @@
+﻿@model IEnumerable<HotelSystem.Models.TableReservation>
+@{
+    ViewBag.Title = "Reservations";
+}<div style="padding:5%">
+    </div>
+<h2 class="text-center mb-4">@ViewBag.Title</h2>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info text-center">No reservations found.</div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped text-center">
+            <thead class="table-dark">
+                <tr>
+                    <th><i class="fas fa-utensils"></i> Table</th>
+                    <th>@Html.DisplayNameFor(model => model.CustomerName)</th>
+                    <th>@Html.DisplayNameFor(model => model.ReservationDate)</th>
+                    <th>@Html.DisplayNameFor(model => model.ReservationTime)</th>
+                    <th>@Html.DisplayNameFor(model => model.NumberOfGuests)</th>
+                    <th>@Html.DisplayNameFor(model => model.Status)</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.TableCategory?.Name</td>
+                        <td>@item.CustomerName</td>
+                        <td>@item.ReservationDate.ToString("yyyy-MM-dd")</td>
+                        <td>@item.ReservationTime.ToString(@"hh\:mm tt")</td>
+                        <td>@item.NumberOfGuests</td>
+                        <td>
+                            <span class="badge @GetStatusBadgeClass(item.Status)">
+                                @item.Status
+                            </span>
+                        </td>
+                        <td>
+                            @if (item.Status != "Cancelled" && item.Status != "Completed")
+                            {
+                                <button class="btn btn-sm btn-outline-danger"
+                                        data-toggle="modal"
+                                        data-target="#cancelModal"
+                                        data-id="@item.Id">
+                                    <i class="fas fa-ban"></i> Cancel
+                                </button>
+                            }
+                            else
+                            {
+                                <span class="text-muted">N/A</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+<!-- Cancel Reservation Modal -->
+<div class="modal fade" id="cancelModal" tabindex="-1" aria-labelledby="cancelModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <form id="cancelForm" method="post" action="@Url.Action("CancelReservation", "Reservations")" class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="cancelModalLabel">Cancel Reservation</h5>
+                <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="reservationId" name="Id" />
+                <div class="alert alert-warning">
+                    Are you sure you want to cancel this reservation?
+                </div>
+                <div class="form-group">
+                    <label for="reason">Reason for Cancellation</label>
+                    <select class="form-control" id="reasonSelect" name="Reason" required>
+                        <option value="">-- Select Reason --</option>
+                        <option>Change of plans</option>
+                        <option>Health issues</option>
+                        <option>Found another venue</option>
+                        <option>Other</option>
+                    </select>
+                </div>
+                <div class="form-group mt-2" id="otherReasonGroup" style="display:none;">
+                    <label for="otherReason">Please specify</label>
+                    <input type="text" class="form-control" id="otherReason" name="OtherReason" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-danger">Confirm Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(function () {
+            $('#cancelModal').on('show.bs.modal', function (event) {
+                const button = $(event.relatedTarget);
+                const reservationId = button.data('id');
+                $(this).find('#reservationId').val(reservationId);
+            });
+
+            $('#reasonSelect').on('change', function () {
+                const isOther = $(this).val() === 'Other';
+                $('#otherReasonGroup').toggle(isOther);
+                if (!isOther) {
+                    $('#otherReason').val('');
+                }
+            });
+        });
+    </script>
+}
+
+@functions {
+    private string GetStatusBadgeClass(string status)
+    {
+        status = status.ToLower();
+        switch (status)
+        {
+            case "confirmed":
+                return "badge bg-success";
+            case "pending":
+                return "badge bg-warning text-dark";
+            case "cancelled":
+                return "badge bg-danger";
+            case "completed":
+                return "badge bg-info text-dark";
+            default:
+                return "badge bg-secondary";
+        }
+    }
+}
+

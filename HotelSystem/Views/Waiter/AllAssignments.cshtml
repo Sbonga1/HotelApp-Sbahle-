@@ -1,0 +1,58 @@
+﻿@model IEnumerable<HotelSystem.Models.WaiterAssignment>
+@{
+    ViewBag.Title = "All Waiter Assignments";
+    var db = new HotelSystem.Models.ApplicationDbContext();
+}
+
+<div class="container py-5">
+    <h2 class="mb-4 text-center fw-bold"><i class="fa fa-list"></i> All Waiter Assignments</h2>
+
+    <table class="table table-bordered table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>#</th>
+                <th>Order ID</th>
+                <th>Waiter</th>
+                <th>Type</th>
+                <th>Room/Table</th>
+                <th>Status</th>
+                <th>Assigned At</th>
+                <th>Items</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                var order = item.CustomerOrder;
+                var orderedProd = db.Orderedproducts.Where(x => x.CustomerOrderId == order.Id).ToList();
+
+                <tr>
+                    <td>@item.Id</td>
+                    <td>@item.CustomerOrderId</td>
+                    <td>@item.Waiter?.FullName</td>
+                    <td>@item.AssignmentType</td>
+                    <td>
+                        @if (item.AssignmentType == "RoomService")
+                        {
+                            <text>Room @order?.RoomNumber</text>
+                        }
+                        else
+                        {
+                            <text>Ask Waiter</text>
+                        }
+                    </td>
+                    <td>@order?.Status</td>
+                    <td>@item.AssignedAt.ToString("g")</td>
+                    <td>
+                        <ul class="mb-0 ps-3">
+                            @foreach (var prod in orderedProd)
+                            {
+                                <li>@prod.Product?.Name x@prod.Quantity</li>
+                            }
+                        </ul>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

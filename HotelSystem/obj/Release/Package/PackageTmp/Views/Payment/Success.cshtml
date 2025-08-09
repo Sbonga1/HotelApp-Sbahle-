@@ -1,0 +1,20 @@
+﻿@{
+    ViewBag.Title = "Payment Successful";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-5 animate-fade-in" style="padding-top:5%">
+    <div class="card shadow-lg p-5 rounded-4 text-center">
+        <div class="mb-4">
+            <i class="fa fa-check-circle fa-4x text-success"></i>
+        </div>
+        <h2 class="fw-bold text-success">Payment Successful</h2>
+        <p class="lead mt-3">@ViewBag.Message</p>
+        <p class="text-muted">A confirmation email with your receipt has been sent to your inbox.</p>
+
+        <div class="mt-4">
+            <a href="@Url.Action("Index", "Home")" class="btn btn-primary px-4 me-2">Return to Home</a>
+            <a href="@Url.Action("MyReservations", "Reservations")" class="btn btn-outline-secondary px-4">My Bookings</a>
+        </div>
+    </div>
+</div>

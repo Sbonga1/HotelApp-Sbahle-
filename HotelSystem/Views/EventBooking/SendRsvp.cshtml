@@ -1,0 +1,80 @@
+﻿@model HotelSystem.ViewModels.SendRsvpViewModel
+@{
+    ViewBag.Title = "Send RSVP Invitations";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    int remaining = ViewBag.Remaining ?? 0;
+}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+<div style="padding-top:5%"></div>
+
+<div class="container py-5">
+    <div class="card shadow-lg border-0 rounded-4">
+        <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+            <h3 class="mb-0"><i class="fa fa-envelope-open-text me-2"></i> Send RSVP Invitations</h3>
+            <span class="badge bg-white text-dark fw-semibold px-3 py-2 rounded-pill">
+                Booking ID: #@Model.EventBookingId
+            </span>
+        </div>
+
+        <div class="card-body px-4 py-4">
+            <div class="alert @(remaining > 0 ? "alert-primary" : "alert-danger")">
+                <i class="fa fa-info-circle me-2"></i>
+                @if (remaining > 0)
+                {
+                    <a><strong>@remaining guest slot@(remaining == 1 ? "" : "s") remaining</strong> for this private event.</a>
+                }
+                else
+                {
+                    <a>
+                        <strong>All guest slots have been filled.</strong> You cannot send more invitations.
+                    </a>
+                }
+            </div>
+
+            @using (Html.BeginForm("SendRsvp", "EventBooking", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(m => m.EventBookingId)
+
+                <!-- Event Title -->
+                <div class="mb-4">
+                    <h5 class="fw-bold text-primary"><i class="fa fa-calendar-alt me-1"></i> Event Name</h5>
+                    <p class="form-control-plaintext">@Model.EventTitle</p>
+                </div>
+
+                <!-- Email Input -->
+        <div class="mb-4">
+            <label class="form-label fw-bold"><i class="fa fa-users me-1"></i> Guest Email Addresses</label>
+            @{
+                var attrs = new Dictionary<string, object>
+    {
+        { "class", "form-control" },
+        { "rows", 6 },
+        { "placeholder", "Enter one or more guest emails separated by commas, semicolons, or new lines." }
+    };
+
+                if (remaining == 0)
+                {
+                    attrs.Add("disabled", "disabled");
+                }
+            }
+
+            @Html.TextAreaFor(m => m.Emails, attrs)
+
+            <small class="text-muted d-block mt-1">
+                Example: guest1@example.com, guest2@example.com<br />
+                You may also paste a list from Excel or another tool.
+            </small>
+            @Html.ValidationMessageFor(m => m.Emails, "", new { @class = "text-danger mt-1 d-block" })
+        </div>
+
+                <!-- Submit Button -->
+                <div class="text-end">
+                    <button type="submit" class="btn btn-success px-4" @(remaining == 0 ? "disabled" : "")>
+                        <i class="fa fa-paper-plane me-1"></i> Send Invitations
+                    </button>
+                </div>
+            }
+        </div>
+    </div>
+</div>

@@ -1,0 +1,38 @@
+﻿@model HotelSystem.Models.Ticket
+@{
+    ViewBag.Title = "Your RSVP Ticket";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+<div style="padding-top:5%"></div>
+
+<div class="container py-5">
+    <div class="card shadow-lg border-0 rounded-4">
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+            <h3 class="mb-0"><i class="fa fa-ticket-alt me-2"></i> Your RSVP Ticket</h3>
+            <span class="badge bg-light text-dark">CONFIRMED</span>
+        </div>
+
+        <div class="card-body px-4 py-4">
+            <!-- Ticket Info -->
+            <h5 class="fw-bold text-primary"><i class="fa fa-ticket me-1"></i> Ticket Information</h5>
+            <p><strong>Email:</strong> @Model.UserEmail</p>
+            <p><strong>Ticket Code:</strong> <span class="badge bg-primary">@Model.TicketCode</span></p>
+            <p><strong>Issued At:</strong> @Model.IssuedAt.ToString("f")</p>
+
+            @if (!string.IsNullOrEmpty(Model.QRCodeImagePath))
+            {
+                <div class="mt-4 text-center">
+                    <img src="@Url.Content(Model.QRCodeImagePath)" alt="QR Code" class="img-fluid" style="max-width: 200px;" />
+                    <p class="text-muted mt-2">📲 Show this QR code at the entrance.</p>
+                </div>
+            }
+
+            <div class="text-end mt-4">
+                <a href="@Url.Action("Index", "Home")" class="btn btn-secondary px-4">
+                    <i class="fa fa-arrow-left me-1"></i> Back to Home
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

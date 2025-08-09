@@ -1,0 +1,164 @@
+﻿@model IEnumerable<HotelSystem.Models.Apartment>
+@using HotelSystem.Models
+@{
+    ApplicationDbContext db = new ApplicationDbContext();
+    ViewBag.Title = "Home - Durban Hotel";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .room-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border-radius: 0.75rem;
+    }
+
+        .room-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.1);
+        }
+
+    .price-tag {
+        font-size: 0.9rem;
+        font-weight: 600;
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    .line {
+        border-radius: 5px;
+    }
+
+    .btn-outline-primary:hover {
+        background-color: #007bff;
+        color: white;
+    }
+
+</style>
+<!-- banner section -->
+<div class="slider">
+    <div class="slide current">
+        <div class="bg-layer">
+            <div class="content">
+                <h6>ENJOY THE BEST MOMENTS OF LIFE</h6>
+                <h3>The ultimate luxury experience</h3>
+                @if (User.IsInRole("Admin"))
+                {
+                    <a href="@Url.Action("Create", "Users")" class="btn btn-style mt-4">ADD USER</a>
+                }
+                else
+                {
+                    <a href="@Url.Action("Apartments", "Hotels")" class="btn btn-style mt-4">BROWSE</a>
+
+                }
+            </div>
+        </div>
+    </div>
+    <div class="slide">
+        <div class="bg-layer">
+            <div class="content">
+                <h6>ENJOY THE BEST MOMENTS OF LIFE</h6>
+                <h3>The ultimate luxury experience</h3>
+                @if (User.IsInRole("Admin"))
+                {
+                    <a href="@Url.Action("Create", "Users")" class="btn btn-style mt-4">ADD USER</a>
+                }
+                else
+                {
+                    <a href="@Url.Action("Apartments", "Hotels")" class="btn btn-style mt-4">BROWSE</a>
+
+                }
+            </div>
+        </div>
+    </div>
+    <div class="slide">
+        <div class="bg-layer">
+            <div class="content">
+                <h6>ENJOY THE BEST MOMENTS OF LIFE</h6>
+                <h3>The ultimate luxury experience</h3>
+                @if (User.IsInRole("Admin"))
+                {
+                    <a href="@Url.Action("Create", "Users")" class="btn btn-style mt-4">ADD USER</a>
+                }
+                else
+                {
+                    <a href="@Url.Action("Apartments", "Hotels")" class="btn btn-style mt-4">BROWSE</a>
+
+                }
+            </div>
+        </div>
+    </div>
+    <div class="slide">
+        <div class="bg-layer">
+            <div class="content">
+                <h6>ENJOY THE BEST MOMENTS OF LIFE</h6>
+                <h3>The ultimate luxury experience</h3>
+                @if (User.IsInRole("Admin"))
+                {
+                    <a href="@Url.Action("Create", "Users")" class="btn btn-style mt-4">ADD USER</a>
+                }
+                else
+                {
+                    <a href="@Url.Action("Apartments", "Hotels")" class="btn btn-style mt-4">BROWSE</a>
+
+                }
+            </div>
+        </div>
+    </div>
+</div>
+<div class="buttons">
+    <button id="prev"><i class="fas fa-arrow-left"></i></button>
+    <button id="next"><i class="fas fa-arrow-right"></i></button>
+</div>
+<!-- //banner section -->
+<section id="featured" class="py-5 bg-light">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h1 class="fw-bold">FEATURED ROOMS</h1>
+            <div class="line mx-auto my-2" style="width: 60px; height: 4px; background-color: #007bff;"></div>
+        </div>
+
+        <div class="row">
+            @foreach (var item in Model)
+            {
+                <div class="col-md-3 mb-4">
+                    <div class="card h-100 border-0 shadow-sm room-card animate-fade-in">
+                        <div class="position-relative">
+                            <img src="~/assets/images/@item.image"
+                                 class="card-img-top img-fluid"
+                                 alt="@item.RoomType"
+                                 style="height: 180px; object-fit: cover; border-radius: 0.5rem 0.5rem 0 0;" />
+                            <div class="price-tag position-absolute top-0 end-0 bg-primary text-white px-2 py-1 rounded-bottom-start">
+                                R @item.rating/night
+                            </div>
+                        </div>
+
+                        <div class="card-body">
+                            <h5 class="card-title">@item.RoomType</h5>
+                            <p class="card-text text-muted small">@item.description.Substring(0, Math.Min(60, item.description.Length))...</p>
+                        </div>
+
+                        <div class="card-footer bg-transparent border-0 text-center">
+                            @Html.ActionLink("BOOK NOW", "Create", "Reservations", new { ApartmentId = item.ID }, new { @class = "btn btn-outline-primary btn-sm w-100 fw-bold" })
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-12 text-center">
+                @Html.ActionLink("VIEW ALL", "Apartments", "Hotels", null, new { @class = "btn btn-dark px-4 py-2" })
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
+
+
+
+
+
+
+
+

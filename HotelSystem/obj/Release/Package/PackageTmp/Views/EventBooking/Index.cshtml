@@ -1,0 +1,50 @@
+﻿@model IEnumerable<HotelSystem.Models.EventBooking>
+@{
+    ViewBag.Title = "All Event Bookings";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div style="padding-top:5%"></div>
+<h3 class="mb-4"><i class="fa fa-calendar-alt me-1"></i> All Event Bookings</h3>
+
+<table class="table table-striped table-hover shadow-sm">
+    <thead class="table-light">
+        <tr>
+            <th>#</th>
+            <th>User</th>
+            <th>Venue</th>
+            <th>Start</th>
+            <th>End</th>
+            <th>Guests</th>
+            <th>Status</th>
+            <th>Paid</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var booking in Model)
+        {
+            <tr>
+                <td>@booking.EventBookingId</td>
+                <td>@booking.UserEmail</td>
+                <td>@booking.EventQuote.Venue.Name</td>
+                <td>@booking.EventQuote.EventStartDateTime.ToString("g")</td>
+                <td>@booking.EventQuote.EventEndDateTime.ToString("g")</td>
+                <td>@booking.EventQuote.GuestCount</td>
+                <td>@booking.Status</td>
+                <td>
+                    @if (booking.IsPaid)
+                    {
+                        <span class="badge bg-success">Yes</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-warning text-dark">No</span>
+                    }
+                </td>
+                <td>
+                    <a href="@Url.Action("Details", "EventBooking", new { id = booking.EventBookingId })" class="btn btn-sm btn-outline-info">Details</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

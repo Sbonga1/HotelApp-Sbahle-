@@ -1,0 +1,117 @@
+﻿@{
+    ViewBag.Title = "Confirm Room Service";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .confirm-card {
+        background: #fff;
+        border-radius: 16px;
+        padding: 30px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease-in-out;
+    }
+
+        .confirm-card:hover {
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+        }
+
+    .form-label {
+        font-weight: 600;
+        color: #343a40;
+    }
+
+    .btn-confirm {
+        background-color: #28a745;
+        color: white;
+        font-weight: 600;
+        border-radius: 8px;
+        padding: 10px 24px;
+    }
+
+        .btn-confirm:hover {
+            background-color: #218838;
+        }
+
+    .scanner-box {
+        border: 2px dashed #ccc;
+        border-radius: 10px;
+        padding: 10px;
+        background-color: #f9f9f9;
+    }
+</style>
+
+<div class="container py-5">
+    <div class="row justify-content-center mb-4">
+        <div class="col-lg-10 text-center">
+            <h2 class="fw-bold"><i class="fa fa-qrcode text-success me-2"></i> Confirm Room Service</h2>
+            <p class="text-muted">Scan the QR code or enter the code manually to confirm delivery.</p>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-6 mb-4">
+            <div class="scanner-box">
+                <h5 class="mb-3"><i class="fa fa-video"></i> Scan QR Code</h5>
+                <div id="qr-reader" style="width:100%"></div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="confirm-card">
+                @using (Html.BeginForm("ConfirmRoomService", "Waiter", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+
+                    <div class="mb-3">
+                        <label class="form-label">Or Enter Code Manually</label>
+                        <input type="text" id="manualCode" name="uniqueCode" class="form-control form-control-lg" placeholder="e.g. 123456" required />
+                    </div>
+
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-confirm">
+                            <i class="fa fa-check-circle me-1"></i> Confirm Delivery
+                        </button>
+                    </div>
+                }
+
+                @if (TempData["Success"] != null)
+                {
+                    <div class="alert alert-success mt-3 text-center">@TempData["Success"]</div>
+                }
+                else if (TempData["Error"] != null)
+                {
+                    <div class="alert alert-danger mt-3 text-center">@TempData["Error"]</div>
+                }
+                else if (TempData["Info"] != null)
+                {
+                    <div class="alert alert-info mt-3 text-center">@TempData["Info"]</div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <script>
+        function onScanSuccess(decodedText) {
+            document.getElementById("manualCode").value = decodedText;
+            document.querySelector("form").submit();
+        }
+
+        function onScanError(errorMessage) {
+            // Optional: console.warn(errorMessage);
+        }
+
+        let html5QrcodeScanner = new Html5QrcodeScanner(
+            "qr-reader", {
+            fps: 10,
+            qrbox: { width: 250, height: 250 }
+        },
+            false
+        );
+
+        html5QrcodeScanner.render(onScanSuccess, onScanError);
+    </script>
+}

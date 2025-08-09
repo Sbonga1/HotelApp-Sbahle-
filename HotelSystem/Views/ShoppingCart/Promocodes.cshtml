@@ -1,0 +1,113 @@
+﻿@model IEnumerable<HotelSystem.Models.PromoCode>
+
+@{
+    ViewBag.Title = "My Promo Codes";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div style="padding-top:5%"></div>
+<section class="promo-section py-5" >
+    <div class="container">
+        <h2 class="text-center mb-3 text-danger fw-bold">
+            🎟️ Your Promo Codes
+        </h2>
+
+        <p class="text-center mb-4">
+            <span class="badge bg-warning text-dark px-4 py-2 shadow-sm">
+                🔔 Promo codes are applied on your next eligible purchase
+            </span>
+        </p>
+
+        @if (!Model.Any())
+        {
+            <div class="alert alert-info text-center shadow-sm rounded-3">
+                <strong>No promo codes found.</strong><br />
+                <span class="text-muted">You can earn them through bookings or referrals!</span>
+            </div>
+        }
+        else
+        {
+            <div class="row">
+                @foreach (var code in Model)
+                {
+                    var isExpired = code.ExpiryDate < DateTime.Now;
+                    var status = code.IsRedeemed ? "Redeemed" : isExpired ? "Expired" : "Active";
+                    var statusClass = code.IsRedeemed ? "secondary" : isExpired ? "danger" : "success";
+
+                    <div class="col-md-4 col-sm-6 mb-4">
+                        <div class="promo-card card shadow border-0 h-100">
+                            <div class="card-body d-flex flex-column justify-content-between text-center">
+                                <div>
+                                    <h4 class="promo-code fw-bold text-uppercase mb-2">@code.Code</h4>
+                                    <p class="text-muted">Value: <span class="text-success fw-semibold">R @code.Amount.ToString("F2")</span></p>
+                                    <p><i class="fa fa-calendar-alt me-1 text-muted"></i> <small class="text-muted">Expires: @code.ExpiryDate.ToString("dd MMM yyyy")</small></p>
+                                </div>
+
+                                <div class="mt-3">
+                                    <span class="badge bg-@statusClass px-3 py-2">@status</span>
+                                    <button class="btn btn-outline-dark btn-sm mt-3 copy-code-btn" data-code="@code.Code">
+                                        <i class="fa fa-copy"></i> Copy Code
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('.copy-code-btn').on('click', function () {
+                const code = $(this).data('code');
+                const tempInput = $("<input>");
+                $("body").append(tempInput);
+                tempInput.val(code).select();
+                document.execCommand("copy");
+                tempInput.remove();
+                alert(`Promo code "${code}" copied to clipboard!`);
+            });
+        });
+    </script>
+}
+
+<style>
+    .promo-section {
+        background: linear-gradient(to right, #fff, #f8f9fa);
+    }
+
+    .promo-card {
+        border-radius: 12px;
+        border: 1px solid #eee;
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+
+        .promo-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+        }
+
+    .promo-code {
+        font-size: 1.2rem;
+        color: #dc3545;
+        letter-spacing: 1px;
+    }
+
+    .copy-code-btn {
+        border-radius: 20px;
+        font-size: 13px;
+        transition: all 0.3s ease;
+    }
+
+        .copy-code-btn:hover {
+            background-color: #dc3545;
+            color: #fff;
+            border-color: #dc3545;
+        }
+
+    .badge {
+        font-size: 0.85rem;
+    }
+</style>

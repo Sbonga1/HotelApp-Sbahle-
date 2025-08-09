@@ -1,0 +1,92 @@
+﻿@model IEnumerable<HotelSystem.Models.EventQuote>
+
+@using HotelSystem.Models
+@{
+    ApplicationDbContext db = new ApplicationDbContext();
+    ViewBag.Title = "My Quotes";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div style="padding-top:5%"></div>
+
+<div class="container py-5">
+    <h3 class="mb-4"><i class="fa fa-file-alt me-2"></i> My Submitted Quotes</h3>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info text-center rounded shadow-sm">
+            <i class="fa fa-info-circle me-1"></i> You have not submitted any quotes yet.
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle rounded-4 overflow-hidden shadow-sm">
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>Title</th>
+                        <th>Type</th>
+                        <th>Venue</th>
+                        <th>Guests</th>
+                        <th>Submitted</th>
+                        <th>Status</th>
+                        <th>Total</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var quote in Model)
+                    {
+                        <tr>
+                            <td>@quote.EventQuoteId</td>
+                            <td class="fw-semibold">@quote.Title</td>
+                            <td>
+                                <span class="badge rounded-pill bg-dark text-white">@quote.EventType.ToString().ToUpper()</span>
+                            </td>
+                            <td>@(quote.Venue?.Name)</td>
+                            <td>@quote.GuestCount</td>
+                            <td>@quote.CreatedAt.ToString("dd MMM yyyy, HH:mm")</td>
+                            <td>
+                                <span class="badge bg-@GetBadgeColor(quote.Status)">
+                                    <i class="fa fa-circle me-1"></i> @quote.Status
+                                </span>
+                            </td>
+                            <td class="fw-bold">@quote.TotalCost.ToString("R 0.00")</td>
+                            <td class="text-center">
+                                <a href="@Url.Action("ViewQuoteSummary", "Quote", new { id = quote.EventQuoteId })"
+                                   class="btn btn-sm btn-outline-info me-1 mb-1">
+                                    <i class="fa fa-eye"></i>
+                                </a>
+                                @{ bool eventbooking = db.EventBookings.Where(x => x.EventQuoteId == quote.EventQuoteId).Any();
+                                    }
+                                @if (!eventbooking && quote.Status == "Approved" && quote.IsFinalized)
+                                {
+
+                                    <a href="@Url.Action("ConfirmBooking", "Quote", new { id = quote.EventQuoteId })"
+                                       class="btn btn-sm btn-success mb-1">
+                                        <i class="fa fa-check-circle me-1"></i> Confirm
+                                    </a>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@functions {
+    string GetBadgeColor(string status)
+    {
+        switch (status)
+        {
+            case "Approved": return "success";
+            case "Amended": return "info";
+            case "Pending": return "warning text-dark";
+            case "Declined":
+            case "Rejected": return "danger";
+            default: return "secondary";
+        }
+    }
+}

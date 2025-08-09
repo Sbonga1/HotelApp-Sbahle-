@@ -1,0 +1,128 @@
+﻿@model HotelSystem.Models.OrderedProduct
+@using HotelSystem.Models
+
+@{
+    ViewBag.Title = "TrackOrder";
+    var order = Model.CustomerOrder;
+    var status = order.Status ?? "";
+    var serviceDate = order.deliveryDate == DateTime.MinValue ? "Not Set" : order.deliveryDate.ToString("dddd, dd MMMM yyyy");
+    var qrCode = string.IsNullOrWhiteSpace(order.qrCodePicture) ? "default-qr.png" : order.qrCodePicture;
+    var room = order.RoomNumber;
+}
+
+<section class="py-5 bg-light">
+    <div class="container py-md-5">
+        <h2 class="fw-bold text-center mb-4">
+            <i class="fa fa-concierge-bell"></i> Order Tracker
+        </h2>
+
+        <div class="card shadow rounded-4">
+            <div class="card-header bg-dark text-white fw-bold">
+                <i class="fa fa-info-circle"></i> My Order Tracking
+            </div>
+
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <strong>Service Time:</strong><br />
+                        @serviceDate
+                    </div>
+                    <div class="col-md-3">
+                        <strong>Room:</strong><br />
+                        @(order.DeliveryType == "RoomService" ? room.ToString() : "N/A")
+                    </div>
+                    <div class="col-md-3">
+                        <strong>Status:</strong><br />
+                        <span class="badge bg-info text-dark">@status</span>
+                    </div>
+                    <div class="col-md-3">
+                        <strong>Unique Code:</strong><br />
+                        @order.UniqueCode
+                    </div>
+                </div>
+
+                <div class="track d-flex justify-content-between text-center mb-4">
+                    <div class="step @(status == "Placed" || status == "Preparing" || status == "Delivered" || status == "Served" ? "active" : "")">
+                        <div class="icon bg-success text-white rounded-circle p-2">
+                            <i class="fa fa-check"></i>
+                        </div>
+                        <div class="text mt-2">Order Placed</div>
+                    </div>
+
+                    <div class="step @(status == "Preparing" || status == "Delivered" || status == "Served" ? "active" : "")">
+                        <div class="icon bg-warning text-white rounded-circle p-2">
+                            <i class="fa fa-utensils"></i>
+                        </div>
+                        <div class="text mt-2">Preparing</div>
+                    </div>
+
+                    <div class="step @(status == "Delivered" || status == "Served" ? "active" : "")">
+                        <div class="icon bg-primary text-white rounded-circle p-2">
+                            <i class="fa fa-bell"></i>
+                        </div>
+                        <div class="text mt-2">
+                            @(order.DeliveryType == "RoomService" ? "Delivered" : "Served")
+                        </div>
+                    </div>
+                </div>
+
+                <hr />
+
+                <div class="row mb-4">
+                    <div class="col-md-4 text-center">
+                        <img src="~/assets/images/@qrCode" alt="QR Code" class="img-thumbnail mb-2" style="max-width: 120px;" />
+                        <div class="small text-muted">
+                            Scan QR Code or Enter: <strong>@order.UniqueCode</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <hr />
+
+                <div class="d-flex justify-content-between">
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <a href="@Url.Action("Index", "OrderedProducts")" class="btn btn-secondary">
+                            <i class="fa fa-chevron-left"></i> Back to All Orders
+                        </a>
+                    }
+                    else if (User.IsInRole("Waiter"))
+                    {
+                        <a href="@Url.Action("MyAssignments", "Waiter")" class="btn btn-secondary">
+                            <i class="fa fa-chevron-left"></i> Back to Assignments
+                        </a>
+                    }
+                    else
+                    {
+                        <a href="@Url.Action("MyOrders", "OrderedProducts")" class="btn btn-warning">
+                            <i class="fa fa-chevron-left"></i> Back to My Orders
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .track .step {
+        flex: 1;
+    }
+
+    .track .icon {
+        font-size: 24px;
+        width: 50px;
+        height: 50px;
+        line-height: 44px;
+        text-align: center;
+        margin: auto;
+    }
+
+    .track .text {
+        font-size: 14px;
+    }
+
+    .track .step.active .icon {
+        background-color: #198754 !important;
+    }
+</style>

@@ -1,0 +1,410 @@
+﻿@model IEnumerable<IGrouping<Tuple<DateTime, TimeSpan>, HotelSystem.Models.OrderedProduct>>
+@using HotelSystem.Models
+@{
+    ApplicationDbContext db = new ApplicationDbContext();
+    ViewBag.Title = "ReturnRequests";
+}
+
+
+
+
+<style>
+
+    #star {
+        margin-left: -5px !important;
+        vertical-align: bottom !important;
+        opacity: 0.5;
+    }
+
+
+    .more {
+        opacity: 0.5 !important;
+    }
+
+    .btn:hover {
+        color: black !important;
+    }
+
+    .vl {
+        margin: 8px !important;
+        width: 2px;
+        border-right: 1px solid #aaaaaa;
+        height: 25px;
+    }
+
+
+    #plus {
+        opacity: 0.8;
+    }
+
+
+    .card {
+        border-radius: 10px !important;
+    }
+
+    a:hover {
+        background-color: #ccc !important;
+    }
+
+
+
+    .btn-outlined:active {
+        color: #FFF;
+        border-color: #fff !important;
+    }
+
+
+    img {
+        cursor: pointer;
+        overflow: visible;
+    }
+
+    .btn:focus,
+    .btn:active {
+        outline: none !important;
+        box-shadow: none !important;
+    }
+
+
+
+    /* Style for the modal overlay */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black background */
+        z-index: 1000; /* Ensure it's above other elements */
+    }
+
+    /* Style for the modal content */
+    .modal-content {
+        background-color: #fff;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        border-radius: 5px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        padding: 20px;
+        max-width: 50%; /* Adjust the maximum width as needed */
+        max-height: 80%; /* Adjust the maximum height as needed */
+        overflow-y: auto; /* Enable scrolling if the content overflows */
+    }
+
+    /* Style for the close button */
+    .close {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        font-size: 20px;
+        cursor: pointer;
+    }
+
+    .pill {
+        display: inline-block;
+        padding: 5px 10px;
+        background-color: #ff6a00;
+        color: white;
+        border-radius: 40px;
+        margin-right: 10px;
+        margin-bottom: 5px;
+    }
+    /* Add additional styles for your modal content, buttons, and other elements as needed */
+    /* Customize fonts, colors, margins, padding, etc. */
+
+    /* Style for buttons within the modal */
+    .modal-content button {
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        padding: 10px 20px;
+        cursor: pointer;
+        margin-top: 10px;
+    }
+
+    /* Style for modal headings and text */
+    .modal-content h2 {
+        text-align: center;
+    }
+
+    /* Style for images within the modal */
+    .modal-content img {
+        max-width: 100%;
+        height: auto;
+        display: block;
+        margin: 0 auto;
+    }
+
+    .modal-footer {
+        margin-top: 20px;
+        text-align: right;
+    }
+</style>
+
+
+
+
+
+<section class="w3l-index-about py-5" id="about2">
+    <div class="container py-md-5 py-2">
+        <h2>Return Requests</h2>
+
+        @foreach (var group in Model)
+        {
+
+
+            <div id="@group.FirstOrDefault().CustomerOrderId" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header-left">
+                        <span onclick="closeModal('@group.FirstOrDefault().CustomerOrderId')" class="close">&times;</span>
+                        <h2 style="text-align:center">Return Information</h2>
+                    </div>
+                    <div class="modal-body">
+                        <div class="pill" style="width: 100%; text-align: center">
+                            <h4>Reciptient Names</h4>
+                            <strong>@group.FirstOrDefault().CustomerOrder.FirstName</strong>
+                        </div>
+                        <div class="pill" style="width:100%; text-align:center">
+                            <h4>Delivery Address</h4>
+                            <strong>@group.FirstOrDefault().CustomerOrder.Address</strong>
+
+                        </div>
+                        <div class="pill" style="width:100%; text-align:center">
+                            <h4>Delivered on</h4>
+                            <strong>@group.FirstOrDefault().CustomerOrder.DeliveredOn</strong>
+
+                        </div>
+                        @try
+                        {
+
+
+                            <div class="pill" style="width:100%; text-align:center">
+                                <h4>Delivered By</h4>
+                                @{var driver = db.Drivers.Find(@group.FirstOrDefault().CustomerOrder.DeliveredBy);}
+                                <strong>@driver.Name &nbsp; @driver.Surname</strong>
+
+                            </div>
+                        }
+                        catch
+                        {
+
+                        }
+                        @{var customerOrderIds = group.Select(g => g.CustomerOrderId).ToList();
+                            var Request = db.OrderReturns.Where(x => customerOrderIds.Contains(x.CustomerOrderId)).ToList();
+                        }
+                        @try
+                        {
+                            <div class="pill" style="width: 100%; text-align: center">
+                                <h4>Request Date</h4>
+                                <strong id="collectDate">@Request.FirstOrDefault().Created </strong>
+                            </div>
+                        }
+                        catch
+                        {
+
+                        }
+                        @try
+                        {
+                            <div class="pill" style="width: 100%; text-align: center">
+                                <h4>Return Reason</h4>
+                                <strong>@Request.FirstOrDefault().Reason</strong>
+                            </div>
+                        }
+                        catch
+                        {
+
+                        }
+
+
+                        <div class="modal-footer">
+                            <div class="btn btn-outline-dark">
+                                <a onclick="closeModal('@group.FirstOrDefault().CustomerOrderId')">Close</a>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+
+
+
+
+            <div class="container">
+                <div class="card mt-5 border-5 pt-2 active pb-0 px-3">
+                    <div class="card-body ">
+                        <div class="row">
+                            <div class="col-12 ">
+                                <h4 class="card-title "><b>Date: @group.Key.Item1.ToLongDateString()</b></h4>
+
+                            </div>
+                            @foreach (var item in group)
+                            {
+                                <div class="row">
+                                    <div class="col">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <h6 class="card-subtitle mb-2 text-muted">
+                                                    <p class="card-text text-muted small">
+                                                        <a href="#" onclick="showBiggerImage('@item.Product.picture')">
+                                                            <img src="~/assets/images/@item.Product.picture" class="mr-1" width="50" height="50" id="star">
+                                                            <span class="vl mr-2 ml-0"></span>
+                                                        </a>
+
+                                                        <label for="price">Product Name:</label>
+                                                        <span id="priceValue" style="padding-left: 1%; color: orange; ">@item.Product.Name</span>
+
+                                                        <label for="quantity" style="padding-left: 10%; margin-left: -8px;">Quantity:</label>
+                                                        <span id="quantityValue" style="padding-left: 1%; color: orange;">@item.Quantity</span>
+
+                                                        <label for="price" style="padding-left: 10%; margin-left: -8px;">Cost:</label>
+                                                        @{ double tot = (double)item.Product.Price * item.Quantity;}
+                                                        <span id="priceValue" style="padding-left: 1%; color: orange;">R @tot</span>
+                                                    </p>
+                                                </h6>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+
+
+
+                        </div>
+                    </div>
+                    <div class="card-footer bg-white px-0">
+                        <div class="row">
+                            <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                                <div>
+                                    <label for="shippingMethod">Shipping method: </label>
+                                    <span id="shippingMethodValue" style="padding-left: 5px; color: orange;">@group.FirstOrDefault().CustomerOrder.ShippingMethod</span>
+                                </div>
+                                <div>
+                                    <label for="deliveryFee">Delivery fee:</label>
+                                    <span id="deliveryFeeValue" style="padding-left: 5px; color: orange;">R @group.FirstOrDefault().CustomerOrder.deliveryFee</span>
+                                </div>
+                                <div>
+                                    <label for="basicCost">Basic Cost:</label>
+                                    <span id="basicCostValue" style="padding-left: 5px; color: orange;">R @group.FirstOrDefault().CustomerOrder.Amount</span>
+                                </div>
+                                <div>
+                                    <label for="totalCost">Total Cost:</label>
+                                    @{ double fTot = (double)group.FirstOrDefault().CustomerOrder.Amount + @group.FirstOrDefault().CustomerOrder.deliveryFee;}
+                                    <span id="totalCostValue" style="padding-left: 5px; color: orange;">R @fTot</span>
+                                </div>
+                                @try
+                                {
+                                    if (Request.FirstOrDefault().Status == "Awaiting Approval")
+                                    {
+                                        <button class="btn btn-outline-dark" style="margin-left: 20px;" onclick="Approve(@Request.FirstOrDefault().OrdReturnId)">Approve</button>
+                                        <button class="btn btn-outline-dark" style="margin-left: 20px;" onclick="Decline(@Request.FirstOrDefault().OrdReturnId)">Decline</button>
+
+                                    }
+                                    else if (Request.FirstOrDefault().Status == "Approved")
+                                    {
+                                        <button class="btn btn-outline-dark" style="margin-left: 5px;" onclick="location.href='@Url.Action(actionName: "Index", controllerName: "Drivers", routeValues: new {prodId = group.FirstOrDefault().ProductId, custOrdID = group.FirstOrDefault().CustomerOrderId, deliveryType = "Return" })'">Schedule Return</button>
+
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-outline-dark" style="margin-left: 20px;" onclick="location.href='@Url.Action(actionName: "TrackReturn", controllerName: "OrderedProducts", routeValues: new {id = group.FirstOrDefault().CustomerOrderId })'">Track Return</button>
+
+                                    }
+                                }
+                                catch
+                                {
+
+                                }
+
+                                <button class="btn btn-outline-dark" style="margin-left: 5px;" onclick="openModal('@group.FirstOrDefault().CustomerOrderId')">Return Info</button>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+
+                </div>
+
+
+
+
+
+
+
+
+            </div>
+
+        }
+
+
+
+    </div>
+</section>
+
+
+<script>
+    function Approve(id) {
+
+
+        alertify.confirm('Approve Order Return', 'Are you want to approve this return request? ' , function () {
+
+        window.location.href = '@Url.Action("ApproveReturn", "OrderedProducts")/' + id;
+    }, null);
+    }
+
+    function Decline(id) {
+    var reason = prompt("Please enter reason for declining:");
+
+    if (reason !== null) {
+
+        alertify.confirm('Decline Order Return', 'Are you sure you want decline this request with reason: ' + reason, function () {
+
+            window.location.href = '@Url.Action("DeclineReturn", "OrderedProducts")/' + id + '?reason=' + encodeURIComponent(reason);
+           }, null);
+           }
+   }
+</script>
+<script>
+    // Function to open modal
+    function openModal(modalId) {
+        var modal = document.getElementById(modalId);
+        modal.style.display = "block";
+    }
+
+    // Function to close modal
+    function closeModal(modalId) {
+        var modal = document.getElementById(modalId);
+        modal.style.display = "none";
+    }
+
+    // Add event listeners for opening modals
+    document.querySelectorAll('button').forEach(function (button) {
+        button.addEventListener('click', function () {
+            var modalId = this.getAttribute('data-modal-id');
+            openModal(modalId);
+        });
+    });
+
+    // Add event listeners for closing modals
+    document.querySelectorAll('.close').forEach(function (closeButton) {
+        closeButton.addEventListener('click', function () {
+            var modalId = this.getAttribute('data-modal-id');
+            closeModal(modalId);
+        });
+    });
+
+    // Add event listener for clicking outside modal to close it
+    window.addEventListener('click', function (event) {
+        if (event.target.classList.contains('modal')) {
+            var modalId = event.target.getAttribute('id');
+            closeModal(modalId);
+        }
+    });
+
+
+</script>

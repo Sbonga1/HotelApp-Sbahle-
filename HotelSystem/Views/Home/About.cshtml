@@ -1,0 +1,71 @@
+﻿@{
+    ViewBag.Title = "About";
+}
+<head>
+    @Styles.Render("~/Content/styles.css")
+    @Styles.Render("~/Content/MyButtons.css")
+    
+</head>
+<div>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container px-4 px-lg-5">
+            <a class="navbar-brand" href='@Url.Action("Index", "Home")'>
+                <img src="~/Content/Images/Pngtreepalm tree png_8371984.png" style="height:45px; width: 50px; justify-items:left" /><h2><i>Sizakala</i></h2>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
+                    <li class="nav-item"><a class="nav-link" onclick="location.href='@Url.Action("Index", "Home")'"><h3>Home</h3></a></li>
+                    <li class="nav-item"><a class="nav-link" onclick="location.href='@Url.Action("About", "Home")'"><h3>About</h3></a></li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"><h3>Donations</h3></a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <li><a class="dropdown-item" onclick="location.href='@Url.Action("Index", "ProductsForDonations")'" href="#!">Items for Donation</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                <!--@Html.Partial("_LoginPartial")-->
+
+            </div>
+        </div>
+    </nav>
+</div>
+<h1 class="AFont">@ViewBag.Title</h1>
+<hr/>
+
+<body class="Aboutx">
+    
+    <style>
+        .Aboutx {
+            background-image: url('../../Content/Images/IMMAUse.jpg');
+            position: relative;
+        }
+        .Font{
+            font-family:'Century Gothic';
+            color:black;
+        }
+        .AFont{
+            font-family:Forte;
+        }
+        .Border {
+            border: 1px solid black;
+            border-radius: 5px;
+            justify-content:left;
+            height:auto;
+            width:400px;
+        }
+    </style>
+    <div class="Border">
+        <p>
+            <h2 class="Font" style="justify-content:left" font-color="white">
+
+                Sizakal is a fast-growing NGO, that keeps culture and creativity at the heart of everything they do.
+                Our mission is to help old age homes, orphanages and customers with thier needs.
+                Our main aim is to help people in need while providing a platform for purchasing to those who can afford
+            </h2>
+        </p>
+    </div>
+
+
+</body>
+    

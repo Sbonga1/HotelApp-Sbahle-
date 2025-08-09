@@ -1,0 +1,90 @@
+﻿@model HotelSystem.ViewModels.FinalInvoiceViewModel
+@{
+    ViewBag.Title = "Final Invoice";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div style="padding-top:5%"></div>
+<div class="container py-5">
+    <div class="card shadow rounded-4 border-0">
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+            <h4 class="mb-0" style="color:white"><i class="fa fa-receipt me-2" ></i> Final Invoice Summary</h4>
+            @if (Model.BalanceDue <= 0)
+            {
+                <a href="@Url.Action("DownloadFinalInvoice", "EventBooking", new { bookingId = Model.Booking.EventBookingId })" class="btn btn-sm btn-light">
+                    <i class="fa fa-download me-1"></i> Download PDF
+                </a>
+            }
+        </div>
+
+        <div class="card-body px-4 py-4">
+            <table class="table table-bordered">
+                <thead class="table-light">
+                    <tr>
+                        <th>Description</th>
+                        <th class="text-end">Amount (R)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>🏢 Venue Cost</td>
+                        <td class="text-end">R @Model.VenueCost.ToString("N2")</td>
+                    </tr>
+                    <tr>
+                        <td>🎯 Activities Cost</td>
+                        <td class="text-end">R @Model.ActivityCost.ToString("N2")</td>
+                    </tr>
+                    <tr>
+                        <td>🍽️ Estimated Food Cost</td>
+                        <td class="text-end">R @Model.EstimatedFoodCost.ToString("N2")</td>
+                    </tr>
+
+                    @if (Model.FoodBreakdown != null && Model.FoodBreakdown.Any())
+                    {
+                        <tr class="table-info fw-bold">
+                            <td colspan="2">🍽️ Guest Food Selections:</td>
+                        </tr>
+                        foreach (var item in Model.FoodBreakdown)
+                        {
+                            <tr>
+                                <td class="ps-4">🔹 @item.Key (x@item.Value.Quantity @("R " + item.Value.UnitPrice.ToString("N2")))</td>
+                                <td class="text-end">R @item.Value.Total.ToString("N2")</td>
+                            </tr>
+                        }
+                        <tr class="table-light fw-bold">
+                            <td>Total Actual Food Cost</td>
+                            <td class="text-end">R @Model.ActualFoodCost.ToString("N2")</td>
+                        </tr>
+                    }
+
+                    <tr class="table-secondary fw-bold">
+                        <td>💰 Final Total</td>
+                        <td class="text-end">R @Model.FinalTotal.ToString("N2")</td>
+                    </tr>
+                    <tr>
+                        <td>💳 Amount Paid (Deposit)</td>
+                        <td class="text-end text-success">R @Model.AmountPaid.ToString("N2")</td>
+                    </tr>
+                    <tr class="table-danger fw-bold">
+                        <td>⚠️ Balance Due</td>
+                        <td class="text-end text-danger">R @Model.BalanceDue.ToString("N2")</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            @if (Model.BalanceDue > 0)
+            {
+                <div class="text-end mt-4">
+                    <a href="@Url.Action("PayFinalBalance", "EventBooking", new { bookingId = Model.Booking.EventBookingId })" class="btn btn-success btn-lg">
+                        <i class="fa fa-credit-card me-1"></i> Pay Balance Now
+                    </a>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-success text-center fw-bold mt-4">
+                    ✅ Full payment has been received. Thank you!
+                </div>
+            }
+        </div>
+    </div>
+</div>

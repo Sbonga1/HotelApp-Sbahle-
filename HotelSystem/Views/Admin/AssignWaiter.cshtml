@@ -1,0 +1,39 @@
+﻿@model HotelSystem.ViewModels.AssignWaiterViewModel
+
+@{
+    ViewBag.Title = "Assign Waiter";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div style="padding-top:5%"></div>
+<div class="container py-5">
+    <h2 class="mb-4 text-center fw-bold"><i class="fa fa-user-plus"></i> Assign Waiter</h2>
+
+    @using (Html.BeginForm("AssignWaiter", "Admin", FormMethod.Post, new { @class = "card shadow p-4" }))
+    {
+        @Html.AntiForgeryToken()
+        @Html.HiddenFor(m => m.OrderId)
+        @Html.HiddenFor(m => m.AssignmentType) <!-- preserve the selected delivery method -->
+
+        <div class="mb-3">
+            <label class="form-label fw-bold">Order ID</label>
+            <input class="form-control" value="@Model.OrderId" disabled />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label fw-bold">Delivery Method</label>
+            <input class="form-control" value="@Model.AssignmentType.Replace("RoomService", "Room Service").Replace("EatIn", "Eat-In")" disabled />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label fw-bold">Select Waiter</label>
+            @Html.DropDownListFor(m => m.WaiterId, new SelectList(Model.Waiters, "Id", "FullName"), "-- Select Waiter --", new { @class = "form-select", required = "required" })
+        </div>
+
+        <div class="text-end">
+            <button type="submit" class="btn btn-success"><i class="fa fa-check"></i> Assign Waiter</button>
+            <a href="@Url.Action("Index", "OrderedProducts")" class="btn btn-secondary ms-2">Cancel</a>
+        </div>
+    }
+</div>

@@ -1,0 +1,80 @@
+﻿@model HotelSystem.Models.Apartment
+
+@{
+    ViewBag.Title = "Delete";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Delete</h2>
+
+<h3>Are you sure you want to delete this?</h3>
+<div>
+    <h4>Apartment</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Room)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Room)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Capacity)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Capacity)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.floor)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.floor)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.description)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.description)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.rating)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.rating)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.image)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.image)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Status)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Status)
+        </dd>
+    </dl>
+
+    @using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+
+        <div class="form-actions no-color">
+            <input type="submit" value="Delete" class="btn btn-default" /> |
+            @*@Html.ActionLink("Back to List", "Index")*@
+            @Html.ActionLink("Back", null, null, null, new { href = Request.UrlReferrer })
+        </div>
+    }
+</div>

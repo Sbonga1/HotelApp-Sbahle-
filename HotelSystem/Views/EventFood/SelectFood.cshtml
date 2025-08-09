@@ -1,0 +1,41 @@
+﻿@model HotelSystem.ViewModels.SelectFoodViewModel
+@{
+    ViewBag.Title = "Select Your Dish";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div style="padding-top:5%"> </div>
+<div class="container py-5">
+    <h3><i class="fa fa-utensils me-2"></i> Select Your Dish</h3>
+
+    <form method="post" action="@Url.Action("SelectFood", "EventFood")">
+        @Html.HiddenFor(m => m.EventBookingId)
+        @Html.HiddenFor(m => m.GuestEmail)
+
+        <div class="row">
+            @foreach (var food in Model.AvailableFoods)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card shadow-sm">
+                        <img src="@Url.Content("~/assets/images/"+food.picture ?? "~/Content/images/food-placeholder.jpg")" class="card-img-top" style="height:150px;object-fit:cover;" />
+                        <div class="card-body">
+                            <h5 class="card-title">@food.Name</h5>
+                            <p>@food.Description</p>
+                            <p><strong>R @food.Price.ToString("N2")</strong></p>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="SelectedFoodId" value="@food.Id" id="food@food.Id"
+                                       @(Model.SelectedFoodId == food.Id ? "checked" : "") />
+                                <label class="form-check-label" for="food@food.Id">Choose This</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="text-end mt-3">
+            <button type="submit" class="btn btn-success">
+                <i class="fa fa-save me-1"></i> Save Selection
+            </button>
+        </div>
+    </form>
+</div>

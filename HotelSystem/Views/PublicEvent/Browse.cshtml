@@ -1,0 +1,168 @@
+﻿@using HotelSystem.Models
+@model IEnumerable<HotelSystem.Models.EventBooking>
+
+@{
+    ViewBag.Title = "Upcoming Public Events";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var userSeats = ViewBag.UserSeats as Dictionary<int, bool> ?? new Dictionary<int, bool>();
+    var servedSeats = ViewBag.ServedSeats as Dictionary<int, bool> ?? new Dictionary<int, bool>();
+    var ratedEvents = ViewBag.RatedEvents as List<int> ?? new List<int>();
+    var foodSelectedEvents = ViewBag.FoodSelectedEvents as List<int> ?? new List<int>();
+    var email = ViewBag.Email as string;
+    var now = DateTime.Now;
+    var userTickets = ViewBag.UserTickets as List<int> ?? new List<int>(); // list of EventBookingIds user attended
+}
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+<div style="padding-top:5%"></div>
+
+<div class="container py-5">
+    <div class="card shadow border-0 rounded-4">
+        <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
+            <h3 class="mb-0"><i class="fa fa-calendar-alt me-2"></i> Browse Public Events</h3>
+            @if (!User.Identity.IsAuthenticated && string.IsNullOrEmpty(email))
+            {
+                <span class="badge bg-light text-dark">Guest Mode</span>
+            }
+        </div>
+
+        <div class="card-body px-4 py-4">
+            @if (!Model.Any())
+            {
+                <div class="alert alert-warning text-center">
+                    <i class="fa fa-info-circle me-1"></i> No upcoming public events at this time.
+                </div>
+            }
+            else
+            {
+                <div class="row">
+                    @foreach (var evt in Model)
+                    {
+                        var quote = evt.EventQuote;
+                        var venue = quote?.Venue;
+                        var ticketTypes = evt.TicketTypes?.ToList() ?? new List<HotelSystem.Models.TicketType>();
+                        bool isSeated = userSeats.ContainsKey(evt.EventBookingId);
+                        bool isServed = servedSeats.ContainsKey(evt.EventBookingId);
+                        bool hasRated = ratedEvents.Contains(evt.EventBookingId);
+                        bool hasSelectedFood = foodSelectedEvents.Contains(evt.EventBookingId);
+
+                        <div class="col-md-6 mb-4">
+                            <div class="card border-0 shadow-sm rounded-4 h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title fw-bold"><i class="fa fa-bullhorn me-1"></i> @quote.Title</h5>
+                                    <p><i class="fa fa-calendar me-1"></i> @quote.EventStartDateTime.ToString("f")</p>
+                                    <p><i class="fa fa-map-marker-alt me-1"></i> Venue: @(venue?.Name)</p>
+                                    <p><i class="fa fa-info-circle me-1"></i> @(venue?.Description)</p>
+
+                                    @if (ticketTypes.Any())
+                                    {
+                                        <p class="fw-bold"><i class="fa fa-ticket me-1"></i> Ticket Options:</p>
+                                        <ul class="list-unstyled mb-3">
+                                            @foreach (var type in ticketTypes)
+                                            {
+                                                <li><i class="fa fa-chevron-right me-1 text-primary"></i> @type.Name – R @type.Price</li>
+                                            }
+                                        </ul>
+                                    }
+
+                                    <div class="d-flex flex-wrap gap-2">
+                                        <a href="@Url.Action("Buy", "Ticket", new { id = evt.EventBookingId })" class="btn btn-outline-success">
+                                            <i class="fa fa-shopping-cart me-1"></i> Buy Ticket
+                                        </a>
+
+                                        @if (isSeated && hasSelectedFood && !hasRated)
+                                        {
+                                            <a href="@Url.Action("RateEvent", "EventFeedback", new { id = evt.EventBookingId })" class="btn btn-outline-primary">
+                                                <i class="fa fa-star me-1"></i> Rate Event
+                                            </a>
+                                        }
+                                        else if (isSeated  && hasRated)
+                                        {
+                                            <button class="btn btn-outline-secondary" disabled data-bs-toggle="tooltip" title="You have already rated this event.">
+                                                <i class="fa fa-star me-1"></i> Rated
+                                            </button>
+                                        }
+                                        else if (isSeated)
+                                        {
+                                            <button class="btn btn-outline-secondary" disabled data-bs-toggle="tooltip" title="You can rate this event after being served.">
+                                                <i class="fa fa-star me-1"></i> Rate Event
+                                            </button>
+                                        }
+
+                                        @if (isSeated && !string.IsNullOrEmpty(email) && !hasSelectedFood)
+                                        {
+                                            <a href="@Url.Action("SelectFood", "EventFood", new { eventId = evt.EventBookingId, email = email })" class="btn btn-warning">
+                                                <i class="fa fa-utensils me-1"></i> Select Food
+                                            </a>
+                                        }
+                                        else if (isSeated && !string.IsNullOrEmpty(email) && hasSelectedFood)
+                                        {
+                                            <button class="btn btn-outline-secondary" disabled data-bs-toggle="tooltip" title="You have already selected your food.">
+                                                <i class="fa fa-utensils me-1"></i> Food Selected
+                                            </button>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <text>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+            const userEmail = '@email';
+            const isAuthenticated = '@User.Identity.IsAuthenticated'.toLowerCase() === 'true';
+
+            if (!isAuthenticated && !userEmail) {
+                setTimeout(() => {
+                    Swal.fire({
+                        title: "Continue as Guest",
+                        html: `
+                            <p class="mb-2">To proceed, please provide your email address.</p>
+                            <input type="email" id="guestEmail" class="swal2-input" placeholder="you@example.com" />
+                            <div class="mt-2">
+                                <a href="/Account/Login" class="btn btn-sm btn-outline-secondary">
+                                    <i class="fa fa-sign-in-alt me-1"></i> I have an account
+                                </a>
+                            </div>
+                        `,
+                        focusConfirm: false,
+                        confirmButtonText: "Continue",
+                        preConfirm: () => {
+                            const email = document.getElementById('guestEmail').value.trim();
+                            const emailRegex = /^[^@@\s]+@@[^@@\s]+\.[^@@\s]+$/;
+
+                            if (!email || !emailRegex.test(email)) {
+                                Swal.showValidationMessage("Please enter a valid email address.");
+                                return false;
+                            }
+
+                            document.cookie = `GuestEmail=${encodeURIComponent(email)}; path=/; max-age=${60 * 60 * 24 * 7}`;
+                            return true;
+                        },
+                        allowOutsideClick: false,
+                        allowEscapeKey: false
+                    }).then(result => {
+                        if (result.isConfirmed) {
+                            location.reload();
+                        }
+                    });
+                }, 300);
+            }
+
+            // Enable Bootstrap tooltips
+            document.addEventListener('DOMContentLoaded', function () {
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+                tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+                    new bootstrap.Tooltip(tooltipTriggerEl);
+                });
+            });
+        </script>
+    </text>
+}

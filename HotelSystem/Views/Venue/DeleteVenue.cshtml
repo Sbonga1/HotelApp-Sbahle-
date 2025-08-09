@@ -1,0 +1,19 @@
+﻿@model HotelSystem.Models.Venue
+@{
+    ViewBag.Title = "Delete Venue";
+}
+<div style="padding-top:5%"></div>
+
+<h2 class="text-danger">Confirm Delete</h2>
+<div class="alert alert-warning">
+    Are you sure you want to delete the venue <strong>@Model.Name</strong>?
+</div>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(m => m.VenueId)
+
+    <button type="submit" class="btn btn-danger">Yes, Delete</button>
+    <a href="@Url.Action("Venues")" class="btn btn-secondary">Cancel</a>
+}

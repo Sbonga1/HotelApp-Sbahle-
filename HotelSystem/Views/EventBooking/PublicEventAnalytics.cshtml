@@ -1,0 +1,105 @@
+﻿@model HotelSystem.ViewModels.PublicEventAnalyticsViewModel
+@{
+    ViewBag.Title = "Public Event Analytics";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+<div style="padding-top:5%"></div>
+
+<div class="container py-5">
+    <div class="card shadow border-0 rounded-4">
+        <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+            <h3 class="mb-0"><i class="fa fa-chart-bar me-2"></i> Analytics - <span class="text-light">@Model.EventTitle</span></h3>
+            <span class="badge bg-white text-success fw-bold px-3 py-2">Event ID: #@ViewBag.EventBookingId</span>
+        </div>
+
+        <div class="card-body px-4 py-4">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="list-group">
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <strong><i class="fa fa-ticket-alt me-2 text-primary"></i> Total Tickets Sold</strong>
+                            <span class="badge bg-primary rounded-pill px-3 py-2">@Model.TotalTicketsSold</span>
+                        </div>
+
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <strong><i class="fa fa-money-bill-wave me-2 text-success"></i> Total Revenue</strong>
+                            <span class="badge bg-success rounded-pill px-3 py-2">@Model.TotalRevenue.ToString("R 0.00")</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="list-group">
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <strong><i class="fa fa-check-circle me-2 text-success"></i> Tickets Scanned</strong>
+                            <span class="badge @(Model.TicketsScanned == 0 ? "bg-secondary" : "bg-success") rounded-pill px-3 py-2">
+                                @Model.TicketsScanned
+                            </span>
+                        </div>
+
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <strong><i class="fa fa-clock me-2 text-warning"></i> Pending Tickets</strong>
+                            <span class="badge @(Model.TicketsPending == 0 ? "bg-secondary" : "bg-warning text-dark") rounded-pill px-3 py-2">
+                                @Model.TicketsPending
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="my-5" />
+
+            <h5 class="fw-bold mb-3"><i class="fa fa-star text-warning me-2"></i> Rating Overview</h5>
+
+            @if (Model.TotalRatings == 0)
+            {
+                <div class="alert alert-info">
+                    <i class="fa fa-info-circle me-1"></i> No ratings submitted yet for this event.
+                </div>
+            }
+            else
+            {
+                <div class="row">
+                    <div class="col-md-5 mb-4">
+                        <div class="bg-light rounded-3 p-4 border text-center shadow-sm">
+                            <h1 class="display-4 fw-bold text-warning mb-2">
+                                @Model.AverageRating.ToString("0.0") <i class="fa fa-star"></i>
+                            </h1>
+                            <p class="mb-0">Average Rating from <strong>@Model.TotalRatings</strong> users</p>
+                        </div>
+                    </div>
+
+                    <div class="col-md-7">
+                        <ul class="list-group shadow-sm rounded-3">
+                            @for (int i = 5; i >= 1; i--)
+                            {
+                                var count = Model.RatingBreakdown.ContainsKey(i) ? Model.RatingBreakdown[i] : 0;
+                                var percent = Model.TotalRatings > 0 ? (int)((count / (double)Model.TotalRatings) * 100) : 0;
+
+                                <li class="list-group-item">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <span class="fw-bold">@i <i class="fa fa-star text-warning"></i></span>
+                                        <span class="text-muted">@count</span>
+                                    </div>
+                                    <div class="progress" style="height: 10px;">
+                                        <div class="progress-bar bg-warning" role="progressbar"
+                                             style="width: @percent%" aria-valuenow="@percent"
+                                             aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+            }
+
+            <div class="text-end mt-5">
+                <a href="@Url.Action("Details", "EventBooking", new { id = ViewBag.EventBookingId })" class="btn btn-secondary px-4">
+                    <i class="fa fa-arrow-left me-1"></i> Back to Booking
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

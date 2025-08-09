@@ -1,0 +1,409 @@
+﻿@model IEnumerable<HotelSystem.Models.TableCategory>
+@using HotelSystem.Models
+@{
+    ApplicationDbContext db = new ApplicationDbContext();
+    ViewBag.Title = "Our Tables";
+    string currencySymbol = "R"; // South African Rand
+}
+
+@if (User.IsInRole("Admin"))
+{
+    <p>
+        @Html.ActionLink("Create New", "Create", null, new { @class = "custom-create-button" })
+    </p>
+}
+
+<h4>@ViewBag.ResName</h4>
+<div class="custom-card-wrapper">
+    @foreach (var item in Model)
+    {
+        <div class="custom-table-item">
+            <img src="~/assets/images/@item.Icon" alt="Table Image for @item.Name" class="custom-table-icon" />
+            <div class="custom-table-details">
+                <p class="custom-table-name">@item.Name</p>
+                <p class="custom-max-guests">Max Guests: @item.MaxGuests</p>
+                <p class="custom-status">Status: @item.Status</p>
+                <p class="custom-price">Price: @currencySymbol@item.Price</p>
+                @if (item.Status == "Available")
+                {
+                    <a href="#" class="custom-book-button" data-toggle="modal" data-target="#bookingModal"
+                       data-table-id="@item.Id.ToString()" data-table-name="@item.Name" data-table-price="@item.Price.ToString()" data-max-guests="@item.MaxGuests.ToString()">
+                        <i class="fas fa-calendar-plus"></i> Book Now
+                    </a>
+                }
+                else
+                {
+                    <a href="#" class="custom-book-button disabled" tabindex="-1" aria-disabled="true"
+                       data-table-id="@item.Id.ToString()" data-table-name="@item.Name" data-table-price="@item.Price.ToString()" data-max-guests="@item.MaxGuests.ToString()">
+                        <i class="fas fa-ban"></i> Currently Not Available
+                    </a>
+                }
+
+
+
+            </div>
+        </div>
+    }
+    
+
+    @{ var custInfo = db.CustInfos.Where(x => x.Email == User.Identity.Name).FirstOrDefault(); }
+
+    <!-- Modal -->
+    <div class="modal fade" id="bookingModal" tabindex="-1" role="dialog" aria-labelledby="bookingModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+
+                    <h5 class="modal-title" id="bookingModalLabel"><i class="fas fa-chair"></i> Book Table</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="step-container">
+                        <div class="step" id="step1">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h5 class="card-title"><i class="fas fa-user"></i> Your Information</h5>
+                                            <div class="form-group">
+                                                <label for="name">Name</label>
+                                                <input type="text" class="form-control" id="name" value="@custInfo.Name" required>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="surname">Surname</label>
+                                                <input type="text" class="form-control" id="surname" value="@custInfo.Surname" required>
+                                            </div>
+                                            <div class="form-row">
+                                                <div class="form-group col-md-6">
+                                                    <label for="date">Date</label>
+                                                    <input type="date" class="form-control" id="date" required>
+                                                </div>
+                                                <div class="form-group col-md-6">
+                                                    <label for="time">Time</label>
+                                                    <input type="time" class="form-control" id="time" required>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="email">Email</label>
+                                                <input type="email" class="form-control" id="email" value="@custInfo.Email" required readonly>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h5 class="card-title"><i class="fas fa-coins"></i> Payment Details</h5>
+                                            <div class="form-group">
+                                                <label for="tablePrice">Table Price</label>
+                                                <input type="text" class="form-control" id="tablePriceDisplay" readonly>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="availableAmount">Available Amount in Account</label>
+                                                <input type="text" class="form-control" id="availableAmount" value="@currencySymbol@custInfo.AccountBalance" readonly>
+                                            </div>
+                                            <div class="form-group form-check">
+                                                <input type="checkbox" class="form-check-input" id="useAvailableAmount">
+                                                <label class="form-check-label" for="useAvailableAmount">Use available amount in account</label>
+                                            </div>
+                                            <p id="finalPrice" class="text-right font-weight-bold" style="font-size: 1.2em;"></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="step" id="step2" style="display: none;">
+                            <h5 class="text-center">Review and Confirm</h5>
+                            <div class="text-center">
+                                <p>Please confirm your booking details and proceed with payment.</p>
+                            </div>
+                            <ul class="list-group">
+                                <li class="list-group-item"><strong>Name:</strong> <span id="confirmName"></span></li>
+                                <li class="list-group-item"><strong>Surname:</strong> <span id="confirmSurname"></span></li>
+                                <li class="list-group-item"><strong>Date:</strong> <span id="confirmDate"></span></li>
+                                <li class="list-group-item"><strong>Time:</strong> <span id="confirmTime"></span></li>
+                                <li class="list-group-item"><strong>Total Price:</strong> <span id="confirmPrice"></span></li>
+                            </ul>
+
+                            <!-- Hidden inputs to store tableId and numberOfGuests -->
+                            <input type="hidden" id="tableId" name="tableId">
+                            <input type="hidden" id="numberOfGuests" name="numberOfGuests">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="prevBtn" onclick="prevStep()" style="display: none;">Back</button>
+                    <button type="button" class="btn btn-primary" id="nextBtn" onclick="nextStep()">Next</button>
+                    <button type="button" class="btn btn-success" id="submitBooking" style="display: none;">Confirm Booking</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @section Scripts {
+        <script>
+        let currentStep = 1;
+
+        function nextStep() {
+            if (currentStep === 1) {
+                // Collect data for confirmation
+                $('#confirmName').text($('#name').val());
+                $('#confirmSurname').text($('#surname').val());
+                $('#confirmDate').text($('#date').val());
+                $('#confirmTime').text($('#time').val());
+                $('#confirmPrice').text($('#finalPrice').text());
+
+                // Update hidden inputs with the tableId and numberOfGuests
+                $('#tableId').val($('#bookingModal').data('table-id'));
+                $('#numberOfGuests').val($('#bookingModal').data('max-guests'));
+
+                $('#step1').hide();
+                $('#step2').show();
+                $('#prevBtn').show();
+                $('#nextBtn').hide();
+                $('#submitBooking').show();
+            }
+        }
+
+        function prevStep() {
+            $('#step2').hide();
+            $('#step1').show();
+            $('#prevBtn').hide();
+            $('#nextBtn').show();
+            $('#submitBooking').hide();
+        }
+
+        $('#bookingModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var tableId = button.data('table-id');
+            var tableName = button.data('table-name');
+            var tablePrice = button.data('table-price');
+            var maxGuests = button.data('max-guests');
+
+            var modal = $(this);
+            modal.find('.modal-title').text('Book ' + tableName);
+
+            // Store tableId and maxGuests in modal's data attributes
+            modal.data('table-id', tableId);
+            modal.data('max-guests', maxGuests);
+
+            modal.find('#tablePriceDisplay').val('@currencySymbol' + parseFloat(tablePrice).toFixed(2));
+
+            // Reset the checkbox and final price
+            $('#useAvailableAmount').prop('checked', false);
+            $('#finalPrice').text('@currencySymbol' + parseFloat(tablePrice).toFixed(2));
+
+            $('#useAvailableAmount').on('change', function () {
+                var availableAmount = parseFloat($('#availableAmount').val().replace('@currencySymbol', '').trim());
+                var finalPrice = parseFloat(tablePrice);
+                if ($(this).is(':checked') && availableAmount > 0) {
+                    finalPrice = Math.max(0, finalPrice - availableAmount);
+                }
+                $('#finalPrice').text('@currencySymbol' + finalPrice.toFixed(2));
+            });
+        });
+
+        $('#submitBooking').on('click', function () {
+            var formData = {
+                name: $('#name').val(),
+                surname: $('#surname').val(),
+                date: $('#date').val(),
+                time: $('#time').val(),
+                email: $('#email').val(),
+                numberOfGuests: $('#numberOfGuests').val(),
+                tableId: $('#tableId').val(),
+                tablePrice: parseFloat($('#finalPrice').text().replace('@currencySymbol', '').trim()),
+                useAvailableAmount: $('#useAvailableAmount').is(':checked')
+            };
+
+            if (!formData.tableId || !formData.numberOfGuests) {
+                alert("Table ID or Number of Guests is missing.");
+                return;
+            }
+
+            var url = '@Url.Action("UpdateCustInfo", "TableCategories")';
+
+            // Redirect to payment page with the form data
+            window.location.href = url + '?Total=' + formData.tablePrice + '&tableId=' + formData.tableId +
+                                   '&Name=' + formData.name + '&Surname=' + formData.surname +
+                                   '&Date=' + formData.date + '&Time=' + formData.time +
+                                   '&Email=' + formData.email + '&NumberOfGuests=' + formData.numberOfGuests +
+                                   '&UseAvailableAmount=' + formData.useAvailableAmount;
+        });
+        </script>
+    }
+
+    <style>
+
+
+
+        /* Styles for the create button */
+        .custom-create-button {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #28a745;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+            .custom-create-button:hover {
+                background-color: #218838;
+                transform: translateY(-2px);
+            }
+
+        /* Styles for the card wrapper */
+        .custom-card-wrapper {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+
+        /* Updated styles for the custom table item */
+        .custom-table-item {
+            background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+            border-radius: 15px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+            .custom-table-item:hover {
+                transform: translateY(-10px);
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            }
+
+        /* Styles for the table icon */
+        .custom-table-icon {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            border-top-left-radius: 15px;
+            border-top-right-radius: 15px;
+        }
+
+        /* Styles for the table details */
+        .custom-table-details {
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-bottom-left-radius: 15px;
+            border-bottom-right-radius: 15px;
+        }
+
+        .custom-table-name {
+            font-size: 1.5em;
+            color: #ff6347;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+
+        .custom-max-guests,
+        .custom-status,
+        .custom-price {
+            font-size: 1.2em;
+            color: #333;
+            margin: 5px 0;
+        }
+
+        /* Styles for the book button */
+        .custom-book-button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #ff6347;
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            margin-top: 15px;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+
+            .custom-book-button:hover {
+                background-color: #e55347;
+                transform: translateY(-2px);
+            }
+
+            /* Disabled button styles */
+            .custom-book-button.disabled {
+                background-color: #d3d3d3;
+                color: #666;
+                pointer-events: none;
+            }
+
+            /* Icon styles for buttons */
+            .custom-book-button i {
+                margin-right: 8px;
+            }
+
+        /* Custom styles for the modal */
+        .modal-header {
+            background-color: #ff0000;
+            color: white;
+            border-bottom: none;
+        }
+
+        .modal-footer .btn-primary {
+            background-color: #0056b3;
+            border-color: #0056b3;
+            transition: background-color 0.3s ease;
+        }
+
+            .modal-footer .btn-primary:hover {
+                background-color: #003f7f;
+            }
+
+        .modal-footer .btn-success {
+            background-color: #28a745;
+            border-color: #28a745;
+            transition: background-color 0.3s ease;
+        }
+
+            .modal-footer .btn-success:hover {
+                background-color: #218838;
+            }
+
+        /* General modal content styles */
+        .step-container {
+            padding: 10px 20px;
+        }
+
+        /* Styles for the card components in the modal */
+        .card {
+            margin-bottom: 20px;
+            border: none;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            color: #333;
+        }
+
+        .form-group label {
+            font-weight: bold;
+        }
+
+        .text-right {
+            text-align: right !important;
+        }
+
+        #finalPrice {
+            font-size: 1.4em;
+            color: #ff0000;
+        }
+
+    </style>

@@ -1,0 +1,116 @@
+﻿@model HotelSystem.Models.Refund
+
+@{
+    ViewBag.Title = "Refund Request";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-5">
+    <div class="card shadow-lg rounded-4 p-4">
+        <h2 class="text-center fw-bold mb-4">Refund Request</h2>
+        <div class="line mx-auto mb-4" style="width: 60px; height: 4px; background-color: #007bff;"></div>
+
+        @using (Html.BeginForm())
+        {
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary(true, "", new { @class = "text-danger mb-3" })
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Customer Email</label>
+                    @Html.EditorFor(m => m.emailaddress, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                    @Html.ValidationMessageFor(m => m.emailaddress, "", new { @class = "text-danger" })
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Reservation Number</label>
+                    @Html.EditorFor(m => m.ReservationId, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                    @Html.ValidationMessageFor(m => m.ReservationId, "", new { @class = "text-danger" })
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Reservation Date</label>
+                    @Html.EditorFor(m => m.ResevationDate, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                    @Html.ValidationMessageFor(m => m.ResevationDate, "", new { @class = "text-danger" })
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Amount Paid</label>
+                    @Html.EditorFor(m => m.reservationAmtPaid, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                    @Html.ValidationMessageFor(m => m.reservationAmtPaid, "", new { @class = "text-danger" })
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Refund Date</label>
+                    @Html.EditorFor(m => m.RefundDate, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                    @Html.ValidationMessageFor(m => m.RefundDate, "", new { @class = "text-danger" })
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Deductions (Fees)</label>
+                    @Html.EditorFor(m => m.RefundFee, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                    @Html.ValidationMessageFor(m => m.RefundFee, "", new { @class = "text-danger" })
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Refund Amount</label>
+                    @Html.EditorFor(m => m.tobePaid, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                    @Html.ValidationMessageFor(m => m.tobePaid, "", new { @class = "text-danger" })
+                </div>
+
+                <div class="col-md-12 mb-4">
+                    <label class="form-label">Reason for Request</label>
+                    @Html.TextAreaFor(m => m.Reason, 8, 50, new { @class = "form-control", placeholder = "Provide your reason for requesting a refund...", required = "required" })
+                    @Html.ValidationMessageFor(m => m.Reason, "", new { @class = "text-danger" })
+                </div>
+
+                <div class="col-md-12 mb-4">
+                    <label class="form-label">Customer Signature</label>
+                    <canvas id="signature-pad" class="border rounded w-100" style="height: 150px;"></canvas>
+                    @Html.HiddenFor(m => m.signature, new { id = "signature-data" })
+                </div>
+
+                <div class="col-md-12 mb-4">
+                    <div class="alert alert-warning">
+                        <i class="fa fa-info-circle"></i>
+                        <strong>Important:</strong> Submitting a refund request will <u>revoke all unused promo codes</u> associated with this reservation.
+                    </div>
+                </div>
+
+                <div class="col-md-12 text-end">
+                    <input id="save-btn" type="submit" value="Submit My Refund" class="btn btn-danger px-4" />
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/signature_pad/1.5.3/signature_pad.min.js"></script>
+    <script>
+        function resizeCanvas(canvas, signaturePad) {
+            const ratio = Math.max(window.devicePixelRatio || 1, 1);
+            canvas.width = canvas.offsetWidth * ratio;
+            canvas.height = canvas.offsetHeight * ratio;
+            canvas.getContext("2d").scale(ratio, ratio);
+            signaturePad.clear();
+        }
+
+        $(document).ready(function () {
+            const canvas = document.getElementById('signature-pad');
+            const signaturePad = new SignaturePad(canvas);
+            resizeCanvas(canvas, signaturePad);
+
+            $(window).resize(function () {
+                resizeCanvas(canvas, signaturePad);
+            });
+
+            $('#save-btn').click(function () {
+                if (!signaturePad.isEmpty()) {
+                    const signatureData = signaturePad.toDataURL();
+                    $('#signature-data').val(signatureData);
+                }
+            });
+        });
+    </script>
+}

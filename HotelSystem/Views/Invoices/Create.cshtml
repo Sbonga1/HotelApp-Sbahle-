@@ -1,0 +1,262 @@
+﻿@model HotelSystem.Models.Invoice
+
+@{
+    ViewBag.Title = "Create";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@Styles.Render("~/Content/css")
+@Scripts.Render("~/bundles/modernizr")
+
+<style>
+    /* Set the form container to display flex */
+    .form-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+    }
+    /* Set the signature pad container to flex 1 to take up available space */
+    .signature-container {
+        flex: 1;
+        margin-left: 20px;
+    }
+    /* Set the signature pad canvas border to black */
+    #signature-pad {
+        border: 1px solid black;
+        margin-left: 0px;
+    }
+
+
+
+    .cleanerSignature-p {
+        margin-left: 300px;
+    }
+
+    .wide-textarea {
+        width: 400px;
+    }
+
+    .big-title h1 {
+        text-align: center;
+    }
+
+    .col-md-10 {
+        margin-left: 100px;
+        width: 550px;
+    }
+
+    .col-md-12 {
+        margin-left: 100px;
+        width: 400px;
+    }
+
+    .col-md-10 p {
+        font-size: 15px;
+        margin-top: 10px;
+        font-weight: 800;
+    }
+
+    .col-md-12 p {
+        font-size: 15px;
+        margin-top: 10px;
+        font-weight: 800;
+    }
+
+    .form-inline {
+        width: 1350px;
+    }
+
+    * {
+        box-sizing: border-box;
+    }
+
+
+
+    .reservation {
+        float: left;
+        width: 700px;
+        height: 1000px;
+    }
+
+    .details-box {
+        float: left;
+        width: 700px;
+        height: 360px;
+    }
+
+    .details-box-2 {
+        float: left;
+        width: 700px;
+        height: 600px;
+    }
+
+    .image img {
+        margin-top: 150px;
+        border-radius: 5px;
+        border: 1px solid burlywood;
+    }
+
+    .btn-default {
+        margin-top: 80px;
+        border-radius: 5px;
+    }
+
+    .row::after {
+        content: "";
+        display: table;
+        clear: both;
+    }
+
+    .c-left {
+        float: left;
+        width: 50%;
+    }
+
+        .c-left p {
+            margin-left: 15px;
+            margin-top: 10px;
+        }
+
+    .space {
+        height: 15px;
+    }
+
+    .col-md-12 {
+        width: 900px;
+    }
+
+    .col-md-11 {
+        background-color: black;
+        height: 100px;
+        width: 900px;
+    }
+
+    .div-space {
+        height: 20px;
+    }
+
+    .left-pad {
+        float: left;
+        width: 50%;
+    }
+</style>
+
+
+<body>
+    <div class="row">
+        <div class="box">
+            @using (Html.BeginForm())
+            {
+                @Html.AntiForgeryToken()
+                <section>
+                    <div class="form-horizontal">
+                        <div class="big-title ">
+                            <h1>Create Damage Invoice</h1>
+                            <div class="line"></div>
+                        </div>
+
+                        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+                        <div class="form-group">
+                            @*@Html.LabelFor(model => model.emailaddress, htmlAttributes: new { @class = "control-label col-md-2" })*@
+                            <div class="col-md-10" style="padding-left:200px">
+                                <p>Date Issued:</p>
+                                @Html.EditorFor(model => model.Invoice_Date, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                @Html.ValidationMessageFor(model => model.Invoice_Date, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+
+
+
+                        <div class="form-group">
+
+                            <div class="col-md-10" style="padding-left:200px">
+                                <p>Customer Name:</p>
+                                @Html.EditorFor(model => model.CustomerName, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                @Html.ValidationMessageFor(model => model.CustomerName, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            @*@Html.LabelFor(model => model.reservationAmtPaid, htmlAttributes: new { @class = "control-label col-md-2" })*@
+                            <div class="col-md-10" style="padding-left:200px">
+                                <p>Customer Email:</p>
+                                @Html.EditorFor(model => model.CustomerEmail, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                @Html.ValidationMessageFor(model => model.CustomerEmail, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                    </div>
+
+                    @*<divk class="row">*@
+                    <div class="details-box-2" style="height:fit-content">
+                        <div class="form-group">
+                            @*@Html.LabelFor(model => model.RefundDate, htmlAttributes: new { @class = "control-label col-md-2" })*@
+                            <div class="col-md-10" style="padding-left:185px">
+                                <p>Damage Description:</p>
+                                @Html.EditorFor(model => model.Damage_Description, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                @Html.ValidationMessageFor(model => model.Damage_Description, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            @*@Html.LabelFor(model => model.RefundFee, htmlAttributes: new { @class = "control-label col-md-2" })*@
+                            <div class="col-md-10" style="padding-left:185px">
+                                <p>CostBreakdown:</p>
+                                <textarea placeholder="Please Type Your Cost Breakdown Here..." id="CostBreakdown" name="CostBreakdown" rows="8" cols="50" class="wide-textarea" required></textarea>
+                                @Html.ValidationMessageFor(model => model.CostBreakdown, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            @*@Html.LabelFor(model => model.tobePaid, htmlAttributes: new { @class = "control-label col-md-2" })*@
+                            <div class="col-md-10" style="padding-left:185px">
+                                <p>Total Amount Due:</p>
+                                @Html.EditorFor(model => model.Total_Amount_Due, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
+                                @Html.ValidationMessageFor(model => model.Total_Amount_Due, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-md-offset-2 col-md-10" style="padding-left:185px">
+                                <p>Please sign below to confirm:</p>
+                                <canvas id="signature-pad" width="400" height="200" class="sign-pad"></canvas>
+                                @*<button id="save-btn">Save Signature</button>*@
+                                @Html.HiddenFor(model => model.Signature, new { id = "signature-data" })
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-md-offset-2 col-md-10" style="padding-left:185px; padding-bottom:5px">
+                                <input id="save-btn" type="submit" value="Create Invoice" class="btn btn-default" />
+                            </div>
+                        </div>
+
+                    </div>
+                </section>
+
+
+            }
+        </div>
+    </div>
+</body>
+@section scripts {
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/signature_pad/1.5.3/signature_pad.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Initialize the signature pad
+            var canvas = document.getElementById('signature-pad');
+            var signaturePad = new SignaturePad(canvas);
+
+            // Handle the save button click event
+            $('#save-btn').click(function () {
+                // Get the signature data URL and set it as a hidden field value
+                var signatureData = signaturePad.toDataURL();
+                $('#signature-data').val(signatureData);
+
+                // Submit the form
+                $('form').submit();
+            });
+        });
+    </script>
+}

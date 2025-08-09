@@ -1,0 +1,36 @@
+﻿﻿@model HotelSystem.Models.Category
+@{
+    ViewBag.Title = "Delete";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<section class="w3l-index-about py-5" id="about2">
+    <div class="container py-md-5 py-2">
+        <h2>Delete</h2>
+
+        <h3>Are you sure you want to delete this?</h3>
+        <div>
+            <h4>Category</h4>
+            <hr />
+            <dl class="dl-horizontal">
+                <dt>
+                    @Html.DisplayNameFor(model => model.Name)
+                </dt>
+
+                <dd>
+                    @Html.DisplayFor(model => model.Name)
+                </dd>
+
+            </dl>
+
+            @using (Html.BeginForm())
+            {
+                @Html.AntiForgeryToken()
+
+                <div class="form-actions no-color">
+                    <input type="submit" value="Delete" class="btn btn-default" /> |
+                    @Html.ActionLink("Back to List", "Index")
+                </div>
+            }
+        </div>
+        </div>
+    </section>

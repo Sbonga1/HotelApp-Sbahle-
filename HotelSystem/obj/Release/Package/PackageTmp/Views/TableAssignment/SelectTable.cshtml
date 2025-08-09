@@ -1,0 +1,29 @@
+﻿@model IEnumerable<HotelSystem.Models.EventTable>
+@{
+    ViewBag.Title = "Select Table";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var email = ViewBag.Email as string;
+    var bookingId = ViewBag.BookingId;
+}
+<div style="padding-top:5%"></div>
+<div class="container py-5">
+    <h3 class="mb-4"><i class="fa fa-chair me-2"></i>Select a Table for @email</h3>
+    <div class="row">
+        @foreach (var t in Model)
+        {
+            var vacantCount = t.Seats.Count(s => !s.IsOccupied);
+            <div class="col-md-4 mb-4">
+                <div class="card shadow border-0 rounded-4 h-100">
+                    <img src="@Url.Content(t.ImageUrl ?? "~/Content/images/table-default.jpg")" class="card-img-top" style="height:180px; object-fit:cover;" />
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold">@t.TableName</h5>
+                        <p><i class="fa fa-users me-1"></i> Vacant Seats: <strong>@vacantCount</strong></p>
+                        <a href="@Url.Action("SelectSeat", new { tableId = t.EventTableId, email })" class="btn btn-outline-primary w-100">
+                            <i class="fa fa-chair me-1"></i> Assign Seat
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

@@ -1,0 +1,58 @@
+﻿@model HotelSystem.Models.Department
+@{
+    ViewBag.Title = "Add New Category";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<section class="content">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="box box-primary">
+
+                @using (Html.BeginForm())
+                {
+                    @Html.AntiForgeryToken()
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title"><b style="color:#dd4b39; text-transform:capitalize;"><i class="fa fa-plus-square-o"></i> Add New Category.</b></h3>
+                        </div>
+                        <div class="panel-body">
+
+                            <div class="container col-lg-6">
+
+                                @Html.ValidationSummary("", new { @class = "text-danger" })
+
+                                <div class="kt-portlet__body">
+
+                                    <div class="form-group">
+                                        @Html.EditorFor(model => model.Department_Name, new { htmlAttributes = new { @class = "form-control", @placeholder = "Category Name" } })
+                                        @Html.ValidationMessageFor(model => model.Department_Name, "", new { @class = "text-danger" })
+                                    </div>
+
+                                    <div class="form-group">
+                                        @Html.EditorFor(model => model.Description, new { htmlAttributes = new { @class = "form-control", @placeholder = "Description*" } })
+                                        @Html.ValidationMessageFor(model => model.Description, "", new { @class = "text-danger" })
+                                    </div>
+
+
+                                    <div class="kt-portlet__foot">
+                                        <div class="kt-form__actions">
+                                            <div class="form-group">
+                                                <button type="submit" class="btn btn-primary">Add</button>
+                                                <button type="reset" class="btn btn-secondary">Cancel</button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+    </div>
+</section>

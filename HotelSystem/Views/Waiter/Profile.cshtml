@@ -1,0 +1,53 @@
+﻿@model HotelSystem.Models.Waiter
+@{
+    ViewBag.Title = "Waiter Profile";
+}
+<div style="padding-top:5%"></div>
+<div class="container py-5">
+    <div class="text-center mb-4">
+        <img src="~/assets/images/@(string.IsNullOrEmpty(Model.ProfilePicture) ? "default-user.png" : Model.ProfilePicture)"
+             class="rounded-circle mb-3" style="width: 120px; height: 120px; object-fit: cover;" />
+        <h3 class="fw-bold">@Model.FullName</h3>
+        <p class="text-muted">@Model.Email | @Model.PhoneNumber</p>
+        <p><strong>Joined:</strong> @Model.CreatedAt.ToString("dd MMM yyyy")</p>
+    </div>
+
+    <h5 class="mb-3"><i class="fa fa-tasks"></i> Assigned Orders</h5>
+
+    @if (Model.Assignments == null || !Model.Assignments.Any())
+    {
+        <div class="alert alert-info">No assignments yet.</div>
+    }
+    else
+    {
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Order ID</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                    <th>Assigned At</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var a in Model.Assignments)
+                {
+                    <tr>
+                        <td>@a.Id</td>
+                        <td>@a.CustomerOrderId</td>
+                        <td>@a.AssignmentType</td>
+                        <td>@a.CustomerOrder?.Status</td>
+                        <td>@a.AssignedAt.ToString("g")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+
+    <div class="mt-4 text-end">
+        <a href="@Url.Action("WaiterList", "Admin")" class="btn btn-secondary">
+            <i class="fa fa-arrow-left"></i> Back to List
+        </a>
+    </div>
+</div>

@@ -1,0 +1,38 @@
+﻿@model IEnumerable<HotelSystem.Models.Resturant>
+
+@{
+    ViewBag.Title = "Restaurants";
+}
+
+<div class="container py-5">
+    <h2 class="mb-4">Restaurants</h2>
+
+    @if (User.IsInRole("Admin"))
+    {
+        <p>
+            <a class="btn btn-success" href="@Url.Action("Create")">Create New</a>
+        </p>
+    }
+
+    <div class="row">
+        @foreach (var item in Model)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card shadow-sm h-100">
+                    <img src="~/assets/images/@item.Icon" class="card-img-top" style="height: 200px; object-fit: cover;" alt="@item.Name" />
+                   
+                    <div class="card-body">
+                        <h5 class="card-title">@item.Name</h5>
+                        <p class="card-text text-muted">ID: @item.Id</p>
+
+                        <div class="d-flex justify-content-between">
+                            <a class="btn btn-sm btn-primary" href="@Url.Action("Edit", new { id = item.Id })">Edit</a>
+                            <a class="btn btn-sm btn-info" href="@Url.Action("Details", new { id = item.Id })">Details</a>
+                            <a class="btn btn-sm btn-danger" href="@Url.Action("Delete", new { id = item.Id })">Delete</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

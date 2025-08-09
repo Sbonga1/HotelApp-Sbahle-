@@ -1,0 +1,522 @@
+﻿
+@using HotelSystem.Models
+@using Microsoft.AspNet.Identity
+
+@{
+
+
+
+    ApplicationDbContext db = new ApplicationDbContext();
+
+    var resrv = new HotelSystem.Models.Reservation();
+
+
+}
+
+
+
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Durban Hotel System</title>
+    <!-- Google fonts -->
+    <link href="//fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap"
+          rel="stylesheet">
+    <!-- Template CSS Style link -->
+    <link rel="stylesheet" href="~/assets/css/style-starter.css">
+    <!-- SweetAlert2 CSS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10.16.6/dist/sweetalert2.min.css">
+    <link rel="stylesheet" href="~/Content/TimeSlotTable.css">
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.16.6/dist/sweetalert2.all.min.js"></script>
+
+</head>
+
+<body>
+    <!-- header -->
+    <header id="site-header" class="fixed-top">
+        <div class="container">
+            <nav class="navbar navbar-expand-lg navbar-light">
+                <a class="navbar-brand" href="@Url.Action("Index","Home")">
+                    Hotel
+                </a>
+                <button class="navbar-toggler collapsed" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#navbarScroll" aria-controls="navbarScroll" aria-expanded="false"
+                        aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon fa icon-expand fa-bars"></span>
+                    <span class="navbar-toggler-icon fa icon-close fa-times"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarScroll">
+                    <ul class="navbar-nav ms-auto my-2 my-lg-0 navbar-nav-scroll">
+
+
+
+
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="@Url.Action("Index","Home")">Home</a>
+                        </li>
+                        @if (!Request.IsAuthenticated)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link"  href="@Url.Action("Browse","PublicEvent")">Public Events</a>
+                            </li>
+                        }
+
+
+                        @if (Request.IsAuthenticated && !User.IsInRole("Admin") && !User.IsInRole("Waiter"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link " href="@Url.Action("MyReservations", "Reservations")">My Reservations</a>
+                            </li>
+
+
+                            var myData = Session["Status"] as string;
+                            var latestReservation = db.Reservations
+                                .Where(x => x.Email == User.Identity.Name)
+                                .OrderByDescending(x => x.Id)
+                                .FirstOrDefault();
+
+
+                            if (latestReservation != null && latestReservation.Status == "Checked IN")
+                            {
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" id="shoppingDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        Restaurant
+                                    </a>
+                                    <div class="dropdown-menu" aria-labelledby="shoppingDropdown">
+                                        <a class="dropdown-item" href="@Url.Action("Index", "StoreFront")">Purchase</a>
+                                        <a class="dropdown-item" href="@Url.Action("MyOrders", "OrderedProducts")">My Orders</a>
+                                        <a class="dropdown-item" href="@Url.Action("MyComplaints", "Complaint")">Complaints</a>
+                                        
+                                    </div>
+                                </li>
+
+                            }
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="eventDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    Events
+                                </a>
+                                <div class="dropdown-menu" aria-labelledby="eventDropdown">
+                                    <a class="dropdown-item" href="@Url.Action("Request", "Quote")">Create Event Quote</a>
+                                    <a class="dropdown-item" href="@Url.Action("MyQuotes", "Quote")">My Quotes</a>
+                                    <a class="dropdown-item" href="@Url.Action("MyBookings", "EventBooking")">My Venue Bookings</a>
+                                    <a class="dropdown-item" href="@Url.Action("Browse", "PublicEvent")">Browse Public Events</a>
+                                    <a class="dropdown-item" href="@Url.Action("MyTickets", "Ticket")">My Tickets</a>
+                                </div>
+                            </li>
+
+
+                            <li class="nav-item">
+                                <a class="nav-link" href="@Url.Action("MyRefunds", "Refunds")">My Refunds</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="@Url.Action("Promocodes", "ShoppingCart")">Promo Codes</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="@Url.Action("MyWallet", "Account")">My Wallet</a>
+                            </li>
+
+                        }
+                        else if (User.IsInRole("Waiter"))
+                        {
+                            @*<li class="nav-item">
+                                <a class="nav-link" href="@Url.Action("MyAssignments", "Waiter")">
+                                    <i class="fa fa-tasks"></i> My Assignments
+                                </a>
+                            </li>*@
+                            <li class="nav-item">
+                                <a class="nav-link" href="@Url.Action("MyEvents", "Waiter")">
+                                    <i class="fa fa-tasks"></i> My Assignments
+                                </a>
+                            </li>
+                        }
+
+                        else
+                        {
+                            if (Request.IsAuthenticated)
+                            {
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" id="hotelDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        Hotel
+                                    </a>
+                                    <div class="dropdown-menu" aria-labelledby="hotelDropdown">
+                                        <a class="dropdown-item" href="@Url.Action("Index", "Apartments")">Apartments</a>
+                                        <a class="dropdown-item" href="@Url.Action("Index", "Reservations")">Reservations</a>
+                                        <a class="dropdown-item" href="@Url.Action("Index", "CheckINs")">Check-INs</a>
+                                        <a class="dropdown-item" href="@Url.Action("Index", "Refunds")">Refunds</a>
+                                    </div>
+                                </li>
+
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" id="restaurantDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        Restaurant
+                                    </a>
+                                    <div class="dropdown-menu" aria-labelledby="restaurantDropdown">
+                                        <a class="dropdown-item" href="@Url.Action("Index", "Categories")">Categories</a>
+                                        <a class="dropdown-item" href="@Url.Action("Index", "Products")">Products</a>
+                                        @*<a class="dropdown-item" href="@Url.Action("Index", "Resturants")">Restaurants</a>*@
+                                        @*<a class="dropdown-item" href="@Url.Action("ResturantsHome", "Home")">Restaurants</a>*@
+                                        <a class="dropdown-item" href="@Url.Action("Index", "OrderedProducts")">Orders</a>
+                                        <a class="dropdown-item" href="@Url.Action("WaiterList", "Admin")">Waiters</a>
+                                        <a class="dropdown-item" href="@Url.Action("AllComplaints", "Complaint")">Complaints</a>
+
+                                        @*<a class="dropdown-item" href="@Url.Action("Index", "TableCategories")">Tables</a>*@
+                                    </div>
+                                </li>
+
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" id="discountDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        Discounts
+                                    </a>
+                                    <div class="dropdown-menu" aria-labelledby="discountDropdown">
+                                        <a class="dropdown-item" href="@Url.Action("CreateDiscount", "Admin")">Create Discount</a>
+                                        <a class="dropdown-item" href="@Url.Action("Index", "Admin")">Manage Discounts</a>
+                                    </div>
+                                </li>
+
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" id="eventDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        Events
+                                    </a>
+                                    <div class="dropdown-menu" aria-labelledby="eventDropdown">
+                                        <a class="dropdown-item" href="@Url.Action("Venues", "Venue")">Venues</a>
+                                        <a class="dropdown-item" href="@Url.Action("Index", "Activities")">Activities</a>
+                                        <a class="dropdown-item" href="@Url.Action("Index", "Equipment")">Equipment</a>
+                                        <a class="dropdown-item" href="@Url.Action("QuotesToReview", "Quote")">Quotes to Review</a>
+                                        <a class="dropdown-item" href="@Url.Action("Index", "EventBooking")">All Events</a>
+                                       
+                                    </div>
+                                </li>
+
+                                <li class="nav-item">
+                                    @Html.ActionLink("💼 Wallet Analytics", "WalletAnalytics", "Admin", null, new { @class = "nav-link" })
+                                </li>
+
+                            }
+
+                        }
+
+                        @if (Request.IsAuthenticated)
+                        {
+                            using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm", @class = "navbar-right" }))
+                            {
+                                @Html.AntiForgeryToken()
+                                <li class="nav-item">
+                                    <a class="nav-link" href="javascript:document.getElementById('logoutForm').submit()">Logout</a>
+                                </li>
+                            }
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" href="@Url.Action("Login", "Account")">Login</a>
+                            </li>
+
+                        }
+
+
+
+                    </ul>
+                    <form action="#search" method="GET" class="d-flex search-header ms-lg-2">
+                        <input class="form-control" type="search" placeholder="Enter Keyword..." aria-label="Search"
+                               required>
+                        <button class="btn btn-style" type="submit"><i class="fas fa-search"></i></button>
+                    </form>
+                </div>
+                <!-- toggle switch for light and dark theme -->
+                <div class="cont-ser-position">
+                    <nav class="navigation">
+                        <div class="theme-switch-wrapper">
+                            <label class="theme-switch" for="checkbox">
+                                <input type="checkbox" id="checkbox">
+                                <div class="mode-container">
+                                    <i class="gg-sun"></i>
+                                    <i class="gg-moon"></i>
+                                </div>
+                            </label>
+                        </div>
+                    </nav>
+                </div>
+                <!-- //toggle switch for light and dark theme -->
+            </nav>
+        </div>
+    </header>
+    @RenderBody();
+    
+
+    <!-- SweetAlert2 TempData Alerts (always loaded) -->
+<script>
+    $(document).ready(function () {
+        @if (TempData["Success"] != null)
+        {
+            <text>
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: '@TempData["Success"]',
+                    confirmButtonColor: '#3085d6'
+                });
+            </text>
+        }
+        else if (TempData["Error"] != null)
+        {
+            <text>
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops!',
+                    text: '@TempData["Error"]',
+                    confirmButtonColor: '#d33'
+                });
+            </text>
+        }
+        else if (TempData["Warning"] != null)
+        {
+            <text>
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Notice',
+                    text: '@TempData["Warning"]',
+                    confirmButtonColor: '#f0ad4e'
+                });
+            </text>
+        }
+        else if (TempData["PromoError"] != null)
+        {
+            <text>
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Promo Code',
+                    text: '@TempData["PromoError"]',
+                    confirmButtonColor: '#3085d6'
+                });
+            </text>
+        }
+        else if (TempData["NewPromo"] != null)
+        {
+            <text>
+                Swal.fire({
+                    icon: 'gift',
+                    title: 'Promo Unlocked!',
+                    text: '@TempData["NewPromo"]',
+                    confirmButtonColor: '#28a745'
+                });
+            </text>
+        }
+        else if (TempData["SwalMessage"] != null)
+            {
+                <text>
+                Swal.fire({
+                    icon: '@TempData["SwalIcon"]',
+                    title: '@TempData["SwalTitle"]',
+                    html: `@TempData["SwalMessage"]`,
+                    confirmButtonColor: '#3085d6',
+                    confirmButtonText: 'OK',
+                    customClass: {
+                        popup: 'rounded-4 shadow-lg border border-danger',
+                        title: 'fw-bold text-danger',
+                        htmlContainer: 'text-start text-dark',
+                    },
+                    backdrop: `
+                        rgba(255,0,0,0.1)
+                        left top
+                        no-repeat
+                    `
+                });
+                </text>
+            }
+        });
+</script>
+   
+
+
+    
+
+
+
+
+    <!-- footer -->
+    <footer class="w3l-footer py-5">
+        <div class="container pt-4">
+            <div class="row">
+                <div class="col-lg-4 sub-one-left">
+                    <h6>About </h6>
+                    <p>
+                        Welcome to our Hotel Booking App  your all-in-one solution for finding, booking,
+                        and managing hotel stays with ease. Whether you're planning a weekend getaway or
+                        a long business trip, our app offers a seamless experience to help you find the perfect
+                        stay at the best rates.
+                    </p>
+                    <ul class="social mt-4 pt-lg-1">
+                        <li><a href="#facebook"><span class="fab fa-facebook-f"></span></a></li>
+                        <li><a href="#twitter"><span class="fab fa-twitter"></span></a></li>
+                        <li><a href="#linkedin"><span class="fab fa-linkedin-in"></span></a></li>
+                        <li><a href="#google-plus"><span class="fab fa-google-plus-g"></span></a></li>
+                        <li><a href="#instagram"><span class="fab fa-instagram"></span></a></li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-3 col-md-6 mt-lg-0 mt-5 sub-one-left">
+                    <h6>Contact </h6>
+                    <div class="column2">
+                        <div class="href1">
+                            <span class="fas fa-envelope-open"></span><a href="durban_hotel324@outlook.com">durban_hotel324@outlook.com</a>
+                        </div>
+                        <div class="href2 my-3">
+                            <span class="fas fa-phone-alt"></span><a href="tel:+27 787 837 837">+27 787 837 837</a>
+                        </div>
+                        <div>
+                            <p class="contact-para mb-3">
+                                <span class="fas fa-map-marker-alt"></span>100 Steve Biko Road, Durban 4001.
+                            </p>
+                        </div>
+                        <div>
+                            <p class="contact-para"><span class="fas fa-clock"></span>Office Hours: 9AM - 7PM</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="copyright-footer text-center mt-5 pt-sm-4 pt-2">
+                <p>
+                    &copy;  2025 . All rights reserved
+                </p>
+            </div>
+        </div>
+    </footer>
+    <!-- //footer -->
+    <!-- Js scripts -->
+    <!-- move top -->
+    <button onclick="topFunction()" id="movetop" title="Go to top">
+        <span class="fas fa-level-up-alt" aria-hidden="true"></span>
+    </button>
+    <script>
+        // When the user scrolls down 20px from the top of the document, show the button
+        window.onscroll = function () {
+            scrollFunction()
+        };
+
+        function scrollFunction() {
+            if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                document.getElementById("movetop").style.display = "block";
+            } else {
+                document.getElementById("movetop").style.display = "none";
+            }
+        }
+
+        // When the user clicks on the button, scroll to the top of the document
+        function topFunction() {
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+        }
+    </script>
+    <!-- //move top -->
+    <!-- common jquery plugin -->
+    <script src="~/assets/js/jquery-3.3.1.min.js"></script>
+    <!-- //common jquery plugin -->
+    <!-- banner slider -->
+    <script>
+        const slides = document.querySelectorAll(".slide");
+        const nextButton = document.getElementById("next");
+        const prevButton = document.getElementById("prev");
+        const auto = true;
+        const intervalTime = 5000;
+        let slideInterval;
+
+        const nextSlide = () => {
+            const current = document.querySelector(".current");
+            current.classList.remove("current");
+            if (current.nextElementSibling) {
+                current.nextElementSibling.classList.add("current");
+            } else {
+                slides[0].classList.add("current");
+            }
+        };
+
+        const prevSlide = () => {
+            const current = document.querySelector(".current");
+            current.classList.remove("current");
+            if (current.previousElementSibling) {
+                current.previousElementSibling.classList.add("current");
+            } else {
+                slides[slides.length - 1].classList.add("current");
+            }
+        };
+
+        nextButton.addEventListener("click", () => {
+            nextSlide();
+            if (auto) {
+                clearInterval(slideInterval);
+                slideInterval = setInterval(nextSlide, intervalTime);
+            }
+        });
+        prevButton.addEventListener("click", () => {
+            prevSlide();
+            if (auto) {
+                clearInterval(slideInterval);
+                slideInterval = setInterval(nextSlide, intervalTime);
+            }
+        });
+
+        if (auto) {
+            slideInterval = setInterval(nextSlide, intervalTime);
+        }
+    </script>
+    <!-- //banner slider -->
+    <!-- theme switch js (light and dark)-->
+    <script src="~/assets/js/theme-change.js"></script>
+    <!-- //theme switch js (light and dark)-->
+    <!-- MENU-JS -->
+    <script>
+        $(window).on("scroll", function () {
+            var scroll = $(window).scrollTop();
+
+            if (scroll >= 80) {
+                $("#site-header").addClass("nav-fixed");
+            } else {
+                $("#site-header").removeClass("nav-fixed");
+            }
+        });
+
+        //Main navigation Active Class Add Remove
+        $(".navbar-toggler").on("click", function () {
+            $("header").toggleClass("active");
+        });
+        $(document).on("ready", function () {
+            if ($(window).width() > 991) {
+                $("header").removeClass("active");
+            }
+            $(window).on("resize", function () {
+                if ($(window).width() > 991) {
+                    $("header").removeClass("active");
+                }
+            });
+        });
+    </script>
+    <!-- //MENU-JS -->
+    <!-- disable body scroll which navbar is in active -->
+    <script>
+        $(function () {
+            $('.navbar-toggler').click(function () {
+                $('body').toggleClass('noscroll');
+            })
+        });
+    </script>
+    <!-- //disable body scroll which navbar is in active -->
+    <!-- bootstrap -->
+    <script src="~/assets/js/bootstrap.min.js"></script>
+    <!-- //bootstrap -->
+    <!-- //Js scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+    @RenderSection("Styles", required: false)
+
+    @RenderSection("scripts", required: false)
+</body>
+
+</html>
+
+

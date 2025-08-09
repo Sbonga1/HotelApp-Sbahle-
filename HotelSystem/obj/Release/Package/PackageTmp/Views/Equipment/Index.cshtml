@@ -1,0 +1,44 @@
+﻿@model IEnumerable<HotelSystem.Models.Equipment>
+@{
+    ViewBag.Title = "Equipment";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+<div style="padding-top:5%"></div>
+
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fa fa-cogs me-2"></i> Equipment List</h2>
+        <a href="@Url.Action("Create")" class="btn btn-success">
+            <i class="fa fa-plus-circle me-1"></i> Add Equipment
+        </a>
+    </div>
+
+    <div class="row">
+        @foreach (var eq in Model)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm border-0 rounded-4">
+                    @if (!string.IsNullOrEmpty(eq.ImageUrl))
+                    {
+                        <img src="@Url.Content(eq.ImageUrl)" class="card-img-top" style="object-fit:cover; height:200px;" />
+                    }
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold">@eq.Name</h5>
+                        <p class="mb-1"><strong>Qty Available:</strong> @eq.QuantityAvailable</p>
+                        <p class="mb-1"><strong>Hourly Rate:</strong> @eq.PricePerHour.ToString("R 0.00")</p>
+                        <p class="text-muted">@eq.Description</p>
+                    </div>
+                    <div class="card-footer bg-transparent d-flex justify-content-between">
+                        <a href="@Url.Action("Edit", new { id = eq.EquipmentId })" class="btn btn-sm btn-outline-primary">
+                            <i class="fa fa-edit"></i> Edit
+                        </a>
+                        <a href="@Url.Action("Delete", new { id = eq.EquipmentId })" class="btn btn-sm btn-outline-danger">
+                            <i class="fa fa-trash"></i> Delete
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

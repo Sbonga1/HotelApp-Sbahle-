@@ -1,0 +1,80 @@
+﻿@model IEnumerable<HotelSystem.Models.Refund>
+
+@{
+    ViewBag.Title = "My Refunds";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-5" style="padding-top:5%">
+    <h2 class="fw-bold mb-4 text-center">My Refund Requests</h2>
+
+    <div class="row gy-4">
+        @foreach (var item in Model)
+        {
+            <div class="col-md-6">
+                <div class="card shadow-sm rounded-4 p-3">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3 text-primary">Refund ID: @item.RefundId</h5>
+
+                        <div class="row">
+                            <div class="col-sm-6 mb-3">
+                                <p style="width:fit-content"><strong>Email:</strong><br /> @item.emailaddress</p>
+                                <p><strong>Reservation #:</strong><br /> @item.ReservationId</p>
+                                <p><strong>Reservation Date:</strong><br /> @DateTime.Parse(item.ResevationDate).ToString("dd MMM yyyy")</p>
+                            </div>
+
+                            <div class="col-sm-6 mb-3">
+                                <p><strong>Refund Date:</strong><br /> @DateTime.Parse(item.RefundDate).ToString("dd MMM yyyy")</p>
+                                <p><strong>Reason:</strong><br /> @item.Reason</p>
+                                <p>
+                                    <strong>Status:</strong><br />
+                                    @if (item.RefundStatus == "Awaiting Approval")
+                                    {
+                                        <span class="badge bg-warning text-dark">Awaiting Approval</span>
+                                    }
+                                    else if (item.RefundStatus == "Declined")
+                                    {
+                                        <span class="badge bg-danger">Declined</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success">Approved</span>
+                                    }
+                                </p>
+                            </div>
+                        </div>
+
+                        <hr />
+
+                        <div class="row">
+                            <div class="col-sm-6 mb-2">
+                                <p><strong>Amount Paid:</strong> R @item.reservationAmtPaid.ToString("F2")</p>
+                                <p><strong>Deductions:</strong> R @item.RefundFee.ToString("F2")</p>
+                                <p><strong>Refund Amount:</strong> R @item.tobePaid.ToString("F2")</p>
+                            </div>
+
+                            <div class="col-sm-6 d-flex align-items-end justify-content-end">
+                                @if (item.RefundStatus == "Awaiting Approval")
+                                {
+                                    @Html.ActionLink("Cancel Request", "Delete", new { id = item.RefundId }, new { @class = "btn btn-outline-danger btn-sm" })
+                                }
+                                else if (item.RefundStatus == "Declined")
+                                {
+                                    <button class="btn btn-sm btn-danger" disabled>Declined</button>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-sm btn-success" disabled>Settled</button>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

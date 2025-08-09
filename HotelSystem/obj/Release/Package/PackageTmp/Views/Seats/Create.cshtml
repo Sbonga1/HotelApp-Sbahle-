@@ -1,0 +1,39 @@
+﻿@model HotelSystem.Models.Seat
+@{
+    ViewBag.Title = "Add Seat";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    int tableId = ViewBag.TableId ?? 0;
+}
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+<div style="padding-top:5%"></div>
+<div class="container py-5">
+    <div class="card shadow-lg border-0 rounded-4 mx-auto" style="max-width: 600px;">
+        <div class="card-header bg-success text-white">
+            <h4 class="mb-0"><i class="fa fa-plus me-2"></i> Add New Seat to Table</h4>
+        </div>
+
+        <div class="card-body px-4 py-4">
+            @using (Html.BeginForm())
+            {
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(model => model.EventTableId, new { Value = tableId })
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Seat Number</label>
+                    @Html.TextBoxFor(model => model.SeatNumber, new { @class = "form-control", placeholder = "e.g. 1" })
+                    @Html.ValidationMessageFor(model => model.SeatNumber, "", new { @class = "text-danger" })
+                </div>
+
+                <div class="text-end">
+                    <button type="submit" class="btn btn-success px-4">
+                        <i class="fa fa-save me-1"></i> Save Seat
+                    </button>
+                    <a href="@Url.Action("Index", "Seat", new { tableId = tableId })" class="btn btn-secondary ms-2">
+                        <i class="fa fa-arrow-left me-1"></i> Back
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>

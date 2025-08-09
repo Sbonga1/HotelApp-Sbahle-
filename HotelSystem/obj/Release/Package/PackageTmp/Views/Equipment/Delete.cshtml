@@ -1,0 +1,42 @@
+﻿@model HotelSystem.Models.Equipment
+@{
+    ViewBag.Title = "Delete Equipment";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+<div style="padding-top:5%"></div>
+
+<div class="container py-5">
+    <div class="card shadow-lg rounded-4 border-0">
+        <div class="card-header bg-danger text-white rounded-top-4">
+            <h3><i class="fa fa-trash me-2"></i> Confirm Deletion</h3>
+        </div>
+
+        <div class="card-body px-4 py-5">
+            <div class="alert alert-warning">
+                Are you sure you want to delete <strong>@Model.Name</strong>?
+            </div>
+
+            @if (!string.IsNullOrEmpty(Model.ImageUrl))
+            {
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Current Image</label><br />
+                    <img src="@Url.Content(Model.ImageUrl)" class="image-preview" />
+                </div>
+            }
+
+            @using (Html.BeginForm("DeleteConfirmed", "Equipment", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(m => m.EquipmentId)
+
+                <div class="text-end">
+                    <button type="submit" class="btn btn-danger px-4">
+                        <i class="fa fa-trash me-1"></i> Delete
+                    </button>
+                    <a href="@Url.Action("Index")" class="btn btn-secondary px-4">Cancel</a>
+                </div>
+            }
+        </div>
+    </div>
+</div>

@@ -1,0 +1,79 @@
+﻿@model HotelSystem.Models.EventTable
+@{
+    ViewBag.Title = "Delete Table";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+
+<style>
+    .delete-card {
+        max-width: 650px;
+        margin: 0 auto;
+        background: #fff;
+        padding: 30px;
+        border-radius: 20px;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+    }
+
+    .delete-header {
+        background: linear-gradient(45deg, #ff4e50, #f9d423);
+        color: white;
+        padding: 20px;
+        border-radius: 15px 15px 0 0;
+        text-align: center;
+    }
+
+    .preview-img {
+        max-height: 160px;
+        margin-top: 15px;
+        border-radius: 12px;
+        object-fit: cover;
+        display: block;
+    }
+</style>
+
+<div style="padding-top:6%"></div>
+<div class="container">
+    <div class="delete-card">
+        <div class="delete-header">
+            <h3><i class="fa fa-trash-alt me-2"></i> Delete Table</h3>
+        </div>
+
+        <div class="mt-4">
+            <h5 class="fw-bold text-danger mb-3">Are you sure you want to delete this table?</h5>
+
+            <dl class="row">
+                <dt class="col-sm-4">Table Name:</dt>
+                <dd class="col-sm-8">@Model.TableName</dd>
+
+                <dt class="col-sm-4">Table ID:</dt>
+                <dd class="col-sm-8">@Model.EventTableId</dd>
+            </dl>
+
+            @if (!string.IsNullOrEmpty(Model.ImageUrl))
+            {
+                <div class="mb-3">
+                    <label class="form-label">Image Preview:</label>
+                    <img src="@Url.Content(Model.ImageUrl)" alt="Table Image" class="preview-img" />
+                </div>
+            }
+
+            @using (Html.BeginForm("Delete", "EventTables", FormMethod.Post))
+            {
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(m => m.EventTableId)
+            @Html.HiddenFor(m => m.VenueId)
+
+            <div class="d-flex justify-content-between mt-4">
+                <a href="@Url.Action("Index", new { venueId = Model.VenueId })" class="btn btn-secondary">
+                    <i class="fa fa-arrow-left me-1"></i> Cancel
+                </a>
+                <button type="submit" class="btn btn-danger">
+                    <i class="fa fa-trash me-1"></i> Confirm Delete
+                </button>
+            </div>
+            }
+        </div>
+    </div>
+</div>

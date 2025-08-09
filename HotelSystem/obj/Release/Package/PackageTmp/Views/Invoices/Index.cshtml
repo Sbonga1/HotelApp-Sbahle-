@@ -1,0 +1,204 @@
+﻿@model IEnumerable<HotelSystem.Models.Invoice>
+
+@{
+    
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css?family=Cabin:600,700|Lato:300,400" rel="stylesheet">
+    <script src="https://use.fontawesome.com/086e19824e.js"></script>
+    <title>@ViewBag.Title</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+    <style>
+        .green {
+            color: #2ecc71;
+        }
+
+        #my-reservations2 {
+            padding: 60px 0;
+        }
+
+            #my-reservations2 .reservation-box2 {
+                display: flex; /* Add flex display */
+                justify-content: space-between; /* Align items in a row with space between */
+                align-items: center; /* Align items vertically */
+                width: 100%;
+                height: 200px; /* Adjust the height as needed */
+                border: 1px solid #ededed;
+                background-color: white;
+                border-radius: 3px;
+                margin-bottom: 30px;
+            }
+
+                #my-reservations2 .reservation-box2 .img-cont {
+                    height: inherit;
+                    overflow: hidden;
+                    padding: 3px;
+                }
+
+                    #my-reservations2 .reservation-box2 .img-cont img {
+                        height: 100%;
+                        margin: 0 auto;
+                        border-top-left-radius: 3px;
+                        border-bottom-left-radius: 3px;
+                    }
+
+                #my-reservations2 .reservation-box2 .main-details {
+                    padding-top: 15px;
+                    padding-left: 25px;
+                }
+
+                    #my-reservations2 .reservation-box2 .main-details .item {
+                        margin-bottom: 15px;
+                    }
+
+                        #my-reservations2 .reservation-box2 .main-details .item h5 {
+                            margin-bottom: 5px;
+                            font-weight: 600;
+                            color: #27ae60;
+                        }
+
+                        #my-reservations2 .reservation-box2 .main-details .item p {
+                            color: #888;
+                        }
+
+                #my-reservations2 .reservation-box2 .action-btns {
+                    display: flex; /* Add flex display */
+                    flex-direction: column; /* Arrange items in a column */
+                    justify-content: center; /* Center items vertically */
+                    padding-top: 35px;
+                    height: inherit;
+                    background-color: #ededed;
+                }
+
+                    #my-reservations2 .reservation-box2 .action-btns a {
+                        margin-bottom: 20px;
+                        width: 70%;
+                        padding-top: 10px;
+                        padding-bottom: 10px;
+                        text-transform: uppercase;
+                    }
+
+            #my-reservations2 .big-title {
+            }
+
+                #my-reservations2 .big-title .line {
+                }
+
+        .room-name {
+            font-size: 18px;
+            color: blue;
+            text-align: center;
+        }
+    </style>
+
+</head>
+<body>
+    <section id="my-reservations2">
+        <div class="container">
+
+            <div class="row">
+
+                <div class="big-title text-center">
+                    <h1>Index</h1>
+                    <div class="line"></div>
+                </div>
+
+
+            </div>
+
+            <div class="row">
+                @foreach (var item in Model)
+                {
+                    
+
+                    <div class="reservation-box2">
+
+                        <div class="col-sm-3 main-details">
+                            <div class="item">
+                                <h5><strong>Invoice#:</strong></h5>
+                                <p>@Html.DisplayFor(modelItem => item.InvoiceNumber)</p>
+                            </div>
+                            <div class="item">
+                                <h5><strong>Room Number:</strong></h5>
+                                <p>@Html.DisplayFor(modelItem => item.Room)</p>
+                            </div>
+
+                        </div>
+
+                        <div class="col-sm-3 main-details">
+
+                            <div class="item">
+                                <h5><strong>Issued:</strong></h5>
+                                <p>@Html.DisplayFor(modelItem => item.Invoice_Date)</p>
+                            </div>
+                            <div class="item">
+                                <h5><strong>Status:</strong></h5>
+                                <p>@Html.DisplayFor(modelItem => item.status)</p>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-3 main-details">
+                            <div class="item">
+                                <h5><strong>Customer Names:</strong></h5>
+                                <p>@Html.DisplayFor(modelItem => item.CustomerName)</p>
+                            </div>
+                            <div class="item">
+                                <h5><strong>Customer Email:</strong></h5>
+                                <p>@Html.DisplayFor(modelItem => item.CustomerEmail)</p>
+                            </div>
+                            
+
+                        </div>
+
+                        <div class="col-sm-3 main-details">
+                            <div class="item">
+                                <h5><strong>Damage Description:</strong></h5>
+                                <p>@Html.DisplayFor(modelItem => item.Damage_Description)</p>
+                            </div>
+
+
+                            <div class="item">
+                                <h5><strong>Total Amount Due:</strong></h5>
+                                <p>@Html.DisplayFor(modelItem => item.Total_Amount_Due)</p>
+                            </div>
+                            
+                        </div>
+                        
+                         <div class="col-sm-2 action-btns" style="width:fit-content">
+                            @*<button style="width:fit-content" type="button" class="btn btn-success" id="Reserv" onclick="location.href='@Url.Action(actionName: "Create", controllerName: "Invoices", routeValues: new { CustEmail = item.CustEmail, CustomerName = item.CustName,Description=item.Description })'"> Create Maintenance Invoice</button>*@
+                            <a href="@Url.Content($"~/{"INV" + item.CustomerEmail + item.InvoiceNumber}.pdf")">Download PDF</a>
+                         </div>
+                        
+
+                    </div>
+
+
+                    <div class="clearfix"></div>
+
+
+
+
+
+
+
+                }
+
+
+            </div>
+        </div>
+    </section>
+    @section Scripts {
+        @Scripts.Render("~/bundles/jqueryval")
+    }
+</body>
+</html>
+
